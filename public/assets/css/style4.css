@@ -1,0 +1,285 @@
+.flexCenter
+{
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+}
+
+body
+{
+    margin: 0;
+    padding: 1.875rem;
+}
+
+*
+{
+    box-sizing: border-box;
+}
+
+.container
+{
+    margin: 0 auto;
+    padding: 0 0.9375rem;
+}
+
+.flex
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.flexLogo
+{
+    gap: 1.875rem;
+}
+
+.flexLogoButtonCreate
+{
+    border: 0.0625rem solid green;
+    padding: 0.3125rem;
+    background-color: rgb(211, 234, 207);
+    border-radius: 0.3125rem;
+    padding-inline: 1.875rem;
+    text-decoration: none;
+    color: green;
+}
+
+.flexContainerColumn
+{
+    border: 0.0625rem solid violet;
+    padding: 0.625rem;
+}
+
+.flexContainerColumn2
+{
+    padding: 0.625rem;
+}
+
+.flexContainerRow
+{
+    display: flex;
+    gap: 0.625rem;
+    margin-top: 1.25rem;
+}
+
+.color_active
+{
+    color: rgb(66, 226, 66);
+}
+
+.color_inactive
+{
+    color: red;
+}
+
+.imgSearch img
+{
+    width: 1rem;
+    height: 1rem;
+    box-sizing: content-box;
+    margin-top: 0.25rem;
+    margin-left: -1.1875rem;
+    cursor: pointer;
+}
+
+.formFlex
+{
+    display: flex;
+    flex-direction: column;
+    
+    margin-right: 1.25rem;
+    padding: 0.625rem;
+    border: 0.0625rem solid black;
+    border-radius: 0.625rem;
+    gap: 0.625rem;
+}
+
+.formFlex input
+{
+    border: 0.0625rem solid black;
+    border-radius: 0.3125rem;
+}
+
+.formFlexButtonAdd
+{
+    border: 0.0625rem solid green;
+    background-color: greenyellow;
+    color: green;
+    padding: 0.3125rem;
+}
+
+.gridCeilFlex
+{
+    display: flex;
+    flex-direction: column;
+    border: 0.0625rem solid black;
+    padding: 0.625rem;
+    align-items: center;
+    max-width: 100%;
+}
+
+.postsGrid
+{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.625rem;
+    row-gap: 1.25rem;
+}
+
+.imgPost
+{
+    width: 95%;
+    height: 95%;
+}
+
+.ceilSubject
+{
+    margin-top: 0.625rem;
+    width: 80%;
+}
+
+.ceilBody
+{
+    width: 23rem;
+    margin-block: 1.25rem;
+    height: 1.875rem;
+    overflow:hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.divCreate
+{
+    display: flex;
+}
+
+.divColumn
+{
+    display: flex;
+    flex-direction: column;
+    padding: 0.3125rem;
+    gap: 0.3125rem;
+}
+
+.sizeSmall
+{
+    font-size: small;
+    font-style: italic;
+}
+
+.formCreatePostContainer
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.createPostButton
+{
+    background-color: aquamarine;
+    color: green;
+    border-radius: 0.3125rem;
+    padding-block: 0.3125rem;
+    padding-inline: 1.875rem;
+    border: 0.0625rem solid green;
+}
+
+.editPostButton
+{
+    background-color:cyan;
+    color: blue;
+    border-radius: 0.3125rem;
+    padding-block: 0.3125rem;
+    padding-inline: 1.875rem;
+    border: 0.0625rem solid cyan;
+}
+
+.deletePostButton
+{
+    background-color: lightcoral;
+    color: red;
+    border-radius: 0.3125rem;
+    padding-block: 0.3125rem;
+    padding-inline: 1.875rem;
+    border: 0.0625rem solid rgb(221, 176, 176);
+}
+
+.hr
+{
+    border-top: 0.125rem dashed black;
+}
+
+.buttonDeleteComment
+{
+    color: red;
+}
+
+.emailComment
+{
+    color: blue;
+}
+
+.bold
+{
+    font-weight: bold;
+}
+
+.findButton
+{
+    background: url('http://localhost/Project/public/assets/img/search.png') no-repeat;
+    background-size: cover;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: none;
+    background-color: none;
+    cursor: pointer;
+    outline: 0;
+    margin-left: -1.25rem;
+    margin-top: 0.1875rem;
+}
+
+.yellow
+{
+    background-color: yellow;
+}
+
+.red
+{
+    color: red;
+}
+
+.loadFromApiButton
+{
+    border: 0.0625rem solid rgb(166, 116, 54);
+    background-color: rgb(255, 166, 1);
+    color: black;
+    padding: 0.3125rem;
+    border-radius: 0.3125rem;
+}
+
+.removeAllButton, .deleteButton
+{
+    border: 0.0625rem solid green;
+    background-color: greenyellow;
+    color: black;
+    padding: 0.3125rem;
+    border-radius: 0.3125rem;
+}
+
+.table
+{
+    border-collapse: collapse;
+}
+
+.table td
+{
+    padding: 0.625rem;
+}
+
+.table tr
+{
+    border-bottom: 0.0625rem solid black !important;
+}
