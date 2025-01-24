@@ -1,59 +1,32 @@
 <?php
 
-class ProductsController
+class CommentsController
 {
     public function __construct(
-        protected ProductModel $model
+        protected CommentModel $model
     )
     {
     }
 
-    private function addNewUserInDB(string $name, string $email, string $status, string $type, string $ssn)
+    public function putCommentDB(string $product_id, string $comment, string $advantages, string $disadvantages, string $star_quantity, string $user_id)
     {
-        $sql = "INSERT INTO users (id, name, email, status, type, ssn) VALUES (:id, :name, :email, :status, :type, :ssn);";
-        $sth = $this->model->getDB()->prepare($sql);
+      $sql = "INSERT INTO comments (id, product_id, comment, advantages, disadvantages, star_quantity, user_id) VALUES (:id, :product_id, :comment, :advantages, :disadvantages, :star_quantity, :user_id);";
 
-        $created = $sth->execute([ 
-            ':id' => NULL,
-            ':name' => $name,
-            ':email' => $email,
-            ':status' => $status,
-            ':type' => $type,
-            ':ssn' => $ssn,
-        ]);
+      $sth = $this->model->getDB()->prepare($sql);
+      $sth->execute(
+        [
+          'id' => NULL,
+          'product_id' => intval($product_id),
+          'comment' => $comment,
+          'advantages' => $advantages,
+          'disadvantages' => $disadvantages,
+          'star_quantity' => intval($star_quantity),
+          'user_id' => intval($user_id)
+        ]
+        );
     }
 
-    public function getCategories(string $category, string $categorysub)
-    {
-        $items = [];
-
-        $sql = "SELECT * FROM categorysubsub WHERE title LIKE :category AND categorysub_id = (SELECT id FROM categorysub WHERE title =  :category_sub);";
-        $sth = $this->model->getDB()->prepare($sql); 
-        
-        $sth->execute([ 
-            ':category' => '%' .  $category . "%",
-            'category_sub' => $categorysub,
-        ]);
-
-        $items = $sth->fetchAll();
-        print_r(json_encode($items));  
-    }
-
-    public function getProductsFilteredByTitle(string $input_title)
-    {
-        $items = [];
-        $input_title = strtolower($input_title);
-
-        $sql = "SELECT * FROM products WHERE LOWER(title) LIKE :input_title;";
-        $sth = $this->model->getDB()->prepare($sql); 
-        
-        $sth->execute([ 
-            ':input_title' => '%' .  $input_title . "%"    
-        ]);
-
-        $items = $sth->fetchAll();
-        print_r(json_encode($items));  
-    }
+    
 
     public function loadFromAPI()
     {
