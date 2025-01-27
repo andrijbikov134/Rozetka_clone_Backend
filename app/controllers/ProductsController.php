@@ -31,7 +31,7 @@ class ProductsController
         $sth = $this->model->getDB()->prepare($sql); 
         
         $sth->execute([ 
-            ':category' => '%' .  $category . "%",
+            ':category' => '%\_' .  $category . "%",
             'category_sub' => $categorysub,
         ]);
 
@@ -49,6 +49,22 @@ class ProductsController
         
         $sth->execute([ 
             ':input_title' => '%' .  $input_title . "%"    
+        ]);
+
+        $items = $sth->fetchAll();
+        print_r(json_encode($items));  
+    }
+
+    public function getProductById(string $id)
+    {
+        $items = [];
+
+
+        $sql = "SELECT * FROM products WHERE id = :id;";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':id' => intval($id)    
         ]);
 
         $items = $sth->fetchAll();
@@ -116,7 +132,7 @@ class ProductsController
         ]);
     }
 
-    public function getAllProducts()
+    public function getPopularProducts()
     {
         $data = $this->model->getProductsList();
         print_r(json_encode($data));

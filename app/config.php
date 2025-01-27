@@ -2,11 +2,11 @@
 
 return [
     'routes' => [
-        'getallproducts' => 'ProductsController@getAllProducts',     // index.php?action=index
+        'getpopularproducts' => 'ProductsController@getPopularProducts',     // index.php?action=index
         'createcomment' => 'CommentsController@putCommentDB',   // index.php?action=create
         'getcategories' => 'ProductsController@getCategories',   // index.php?action=delete&id=10
         'getproductsfilteredbytitle' => 'ProductsController@getProductsFilteredByTitle',   // index.php?action=delete&id=10
-        'removeallusers' => 'ProductsController@removeallusers',   // index.php?action=delete&id=10
+        'getproductbyid' => 'ProductsController@getProductById',   // index.php?action=delete&id=10
     ],
     'service_container' => [
             'ProductsController' => [

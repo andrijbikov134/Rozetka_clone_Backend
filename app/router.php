@@ -56,15 +56,10 @@ if (isset($routes[$action]))
             
             $controller->$method($input_title);
         }
-        else if($action == "create")
+        else if($action == "getproductbyid")
         {
-            $userName = $_GET['name'];
-            $userEmail = $_GET['email'];
-            $userStatus = $_GET['status'];
-            $userType = $_GET['type'];
-            $userSsn = $_GET['ssn'];
-            
-            $controller->$method($userName, $userEmail, $userStatus, $userType, $userSsn);
+            $id = $_GET['id'];
+            $controller->$method($id);
         }
         else
         {
