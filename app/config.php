@@ -18,8 +18,8 @@ return [
     ],
     'params' => 
         [
-        'dsn' => 'mysql:host=localhost;dbname=clothes_store',
-        'user' => 'root',
-        'password' => '',
+        'dsn' => 'mysql:host=database;dbname=clothes_store',
+        'user' => trim(file_get_contents('/run/secrets/db_user')),
+        'password' => trim(file_get_contents('/run/secrets/db_password')),
         ]
 ];
