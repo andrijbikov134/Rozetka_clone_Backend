@@ -3,10 +3,18 @@
 return [
     'routes' => [
         'getpopularproducts' => 'ProductsController@getPopularProducts',     // index.php?action=index
-        'createcomment' => 'CommentsController@putCommentDB',   // index.php?action=create
         'getcategories' => 'ProductsController@getCategories',   // index.php?action=delete&id=10
         'getproductsfilteredbytitle' => 'ProductsController@getProductsFilteredByTitle',   // index.php?action=delete&id=10
-        'getproductbyid' => 'ProductsController@getProductById',   // index.php?action=delete&id=10
+        'getproductbyid' => 'ProductsController@getProductById',
+        'getproductswithoutfilters' => 'ProductsController@getProductsWithoutFilters',  
+        'getproductswithfilters' => 'ProductsController@getProductsWithFilters',
+        'getcategorysubsubtitle' => 'ProductsController@getCategorySubSubTitle',
+        'getproductcharacteristics' => 'ProductsController@getProductCharacteristics',
+         
+        
+        
+        // index.php?action=delete&id=10
+        'createcomment' => 'CommentsController@putCommentDB',   // index.php?action=create
     ],
     'service_container' => [
             'ProductsController' => [
@@ -18,8 +26,8 @@ return [
     ],
     'params' => 
         [
-        'dsn' => 'mysql:host=database;dbname=clothes_store',
-        'user' => trim(file_get_contents('/run/secrets/db_user')),
-        'password' => trim(file_get_contents('/run/secrets/db_password')),
+        'dsn' => 'mysql:host=localhost;dbname=clothes_store',
+        'user' => 'root',
+        'password' => '',
         ]
 ];

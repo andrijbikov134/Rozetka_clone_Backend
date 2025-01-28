@@ -18,16 +18,13 @@ class UserModel extends BaseModel
     public function getUsersList(): array
     {
         $items = [];
-
         $sql = "SELECT * FROM users ORDER BY id ASC;";
-
         $sth = $this->dbh->query($sql, PDO::FETCH_ASSOC);
 
         if ($sth->rowCount() > 0)
         {
             $items = $sth->fetchAll();
         }
-
         return $items;
     }
 

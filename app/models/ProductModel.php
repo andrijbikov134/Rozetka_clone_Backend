@@ -27,7 +27,6 @@ class ProductModel extends BaseModel
         {
             $items = $sth->fetchAll();
         }
-
         return $items;
     }
 

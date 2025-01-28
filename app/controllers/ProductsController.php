@@ -55,6 +55,118 @@ class ProductsController
         print_r(json_encode($items));  
     }
 
+    public function getProductsWithoutFilters(string $category, string $categorysub, string $categorysubsub)
+    {
+        $items = [];
+        $sql = "SELECT * FROM products WHERE category_id = (SELECT id FROM category WHERE LOWER(title) =  :category)
+        AND category_sub_id = (SELECT id FROM categorysub WHERE LOWER(title) =  :category_sub)
+        AND category_sub_sub_id = (SELECT id FROM categorysubsub WHERE LOWER(title) =  :category_sub_sub);";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':category' => $category,
+            ':category_sub' => $categorysub,
+            ':category_sub_sub' => $categorysubsub . "_" . $category,
+        ]);
+
+        $items = $sth->fetchAll();
+        print_r(json_encode($items)); 
+    }
+
+    public function getProductsWithFilters(string $input_title)
+    {
+        $items = [];
+        $input_title = strtolower($input_title);
+
+        $sql = "SELECT * FROM products WHERE LOWER(title) LIKE :input_title;";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':input_title' => '%' .  $input_title . "%"    
+        ]);
+
+        $items = $sth->fetchAll();
+        print_r(json_encode($items));  
+    }
+
+    public function getCategorySubSubTitle(string $categorysubsub)
+    {
+        $sql = "SELECT title_ua FROM categorysubsub WHERE LOWER(title) = :categorysubsub;";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':categorysubsub' => $categorysubsub  
+        ]);
+        $result = $sth->fetchAll();
+        print_r(json_encode($result));  
+    }
+
+    private function getBrandProductById(string $id)
+    {
+        $sql = "SELECT title FROM brands WHERE id = (SELECT brand_id FROM products WHERE id = :id);";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':id' => intval($id)  
+        ]);
+        $result = $sth->fetchAll();
+        return $result;
+    }
+
+    private function getCategorySubSubProductById(string $id)
+    {
+        $sql = "SELECT title_ua FROM categorysubsub WHERE id = (SELECT category_sub_id FROM products WHERE id = :id);";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':id' => intval($id)  
+        ]);
+        $result = $sth->fetchAll();
+        return $result;
+    }
+
+    private function getColorProductById(string $id)
+    {
+        $sql = "SELECT title FROM colors WHERE id = (SELECT color_id FROM products WHERE id = :id);";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':id' => intval($id)  
+        ]);
+        $result = $sth->fetchAll();
+        return $result;
+    }
+
+    private function getMaterialProductById(string $id)
+    {
+        $sql = "SELECT title FROM materials WHERE id = (SELECT material_id FROM products WHERE id = :id);";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':id' => intval($id)  
+        ]);
+        $result = $sth->fetchAll();
+        return $result;
+    }
+
+    public function getProductCharacteristics(string $id)
+    {
+        $items = [];
+        $result = $this->getBrandProductById($id);
+        $items['brand'] = $result[0][0];
+
+        $result = $this->getCategorySubSubProductById($id);
+        $items['type'] = $result[0][0];
+
+        $result = $this->getColorProductById($id);
+        $items['color'] = $result[0][0];
+
+        $result = $this->getMaterialProductById($id);
+        $items['material'] = $result[0][0];
+
+        print_r(json_encode($items)); 
+    }
+
     public function getProductById(string $id)
     {
         $items = [];

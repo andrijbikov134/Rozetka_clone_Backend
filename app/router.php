@@ -7,8 +7,6 @@ $action = 'index';
 if (isset($_GET['action']))
 {
     $action = strtolower($_GET['action']);
-    
-
 }
 
 $routes = $config['routes'];
@@ -22,15 +20,11 @@ if (isset($routes[$action]))
     $dependency = $config['service_container'][$class_name];
     $dependency_class = $dependency['class'];
 
-   
-
     try
     {
         $controller = new $class_name(
             new $dependency_class($dependency_params)
         );
-        
-        
         
         if($action == "createcomment")
         {
@@ -57,6 +51,23 @@ if (isset($routes[$action]))
             $controller->$method($input_title);
         }
         else if($action == "getproductbyid")
+        {
+            $id = $_GET['id'];
+            $controller->$method($id);
+        }
+        else if($action == "getproductswithoutfilters")
+        {
+            $category = $_GET['category'];
+            $categorysub = $_GET['categorysub'];
+            $categorysubsub = $_GET['categorysubsub'];
+            $controller->$method($category,$categorysub,$categorysubsub);
+        }
+        else if($action == "getcategorysubsubtitle")
+        {
+            $categorysubsub = $_GET['categorysubsub'];
+            $controller->$method($categorysubsub);
+        }
+        else if($action == "getproductcharacteristics")
         {
             $id = $_GET['id'];
             $controller->$method($id);

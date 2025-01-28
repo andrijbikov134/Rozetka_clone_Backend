@@ -31,8 +31,6 @@ class CommentModel extends BaseModel
         return $items;
     }
 
-    
-
     public function getDB() : PDO
     {
         return $this->dbh;

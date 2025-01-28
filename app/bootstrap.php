@@ -16,7 +16,6 @@ define('MODELS_PATH', __DIR__ . '/models');
 define('VIEWS_PATH', __DIR__ . '/views');
 define('STORAGE_PATH', __DIR__ . '/storage');
 
-
 spl_autoload_register(function ($class_name)
 {
     $file_path = sprintf("%s/%s.php", MODELS_PATH, str_replace("\\", '/', $class_name));
