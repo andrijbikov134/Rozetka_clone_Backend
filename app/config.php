@@ -14,15 +14,56 @@ return [
         
         
         // index.php?action=delete&id=10
-        'createcomment' => 'CommentsController@putCommentDB',   // index.php?action=create
+        'createreview' => 'ReviewsController@putReviewDB',
+        'getreviewsproductbyid' => 'ReviewsController@getReviewsProductById',
+        
+        'getproductsizes' => 'ProductIdSizeIdController@getProductSizes',
+        
+        'getsizebyid' => 'SizesController@getSizeById',
+        
+        'getcolorbyid' => 'ColorsController@getColorById',
+        
+        'createorder' => 'OrdersController@createOrder',
+
+        'loginuser' => 'UsersController@loginUser' ,
+        'registeruser' => 'UsersController@registerUser' ,
     ],
     'service_container' => [
             'ProductsController' => [
             'class' => 'ProductModel',
             ],
-            'CommentsController' => [
-            'class' => 'CommentModel',
-            ],    
+            'ReviewsController' => [
+            'class' => 'ReviewModel',
+            ],
+            'ProductIdSizeIdController' =>
+            [
+                'class' => 'ProductIdSizeIdModel',
+            ], 
+            'SizesController' =>
+            [
+                'class' => 'SizeModel',
+            ], 
+            'ColorsController' =>
+            [
+                'class' => 'ColorModel',
+            ],
+            'UsersController' =>
+            [
+                'class' => 'UserModel',
+            ],
+            'OrdersController' =>
+            [
+                'class' => 'OrderModel',
+            ],
+            'RecipientsController' =>
+            [
+                'class' => 'RecipientModel',
+            ],
+            'OrderIdProductIdController' =>
+            [
+                'class' => 'OrderIdProductIdModel',
+            ],
+               
     ],
     'params' => 
         [

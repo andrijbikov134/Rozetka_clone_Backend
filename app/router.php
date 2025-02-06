@@ -26,16 +26,17 @@ if (isset($routes[$action]))
             new $dependency_class($dependency_params)
         );
         
-        if($action == "createcomment")
+        if($action == "createreview")
         {
             $product_id = $_GET['productid'];
             $comment = $_GET['comment'];
             $advantages = $_GET['advantages'];
             $disadvantages = $_GET['disadvantages'];
-            $star_quantity = $_GET['starquantity'];
+            $grade = $_GET['grade'];
+            $datereview = $_GET['datereview'];
             $user_id = $_GET['userid'];
 
-            $controller->$method($product_id, $comment, $advantages, $disadvantages, $star_quantity, $user_id);
+            $controller->$method($product_id, $comment, $advantages, $disadvantages, $grade, $datereview, $user_id);
         }
         else if($action == "getcategories")
         {
@@ -50,7 +51,7 @@ if (isset($routes[$action]))
             
             $controller->$method($input_title);
         }
-        else if($action == "getproductbyid")
+        else if($action == "getproductbyid" || $action == "getreviewsproductbyid" || $action == "getsizebyid" || $action == "getcolorbyid")
         {
             $id = $_GET['id'];
             $controller->$method($id);
@@ -67,10 +68,19 @@ if (isset($routes[$action]))
             $categorysubsub = $_GET['categorysubsub'];
             $controller->$method($categorysubsub);
         }
-        else if($action == "getproductcharacteristics")
+        else if($action == "getproductcharacteristics" || $action == 'getsizebyid')
         {
             $id = $_GET['id'];
             $controller->$method($id);
+        }
+        else if($action == 'getproductsizes')
+        {
+            $productId = $_GET['productId'];
+            $controller->$method($productId);
+        }
+        else if($action == 'createorder')
+        {
+            $controller->$method();
         }
         else
         {

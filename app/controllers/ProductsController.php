@@ -51,7 +51,7 @@ class ProductsController
             ':input_title' => '%' .  $input_title . "%"    
         ]);
 
-        $items = $sth->fetchAll();
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
         print_r(json_encode($items));  
     }
 
@@ -69,7 +69,7 @@ class ProductsController
             ':category_sub_sub' => $categorysubsub . "_" . $category,
         ]);
 
-        $items = $sth->fetchAll();
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
         print_r(json_encode($items)); 
     }
 
@@ -85,7 +85,7 @@ class ProductsController
             ':input_title' => '%' .  $input_title . "%"    
         ]);
 
-        $items = $sth->fetchAll();
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
         print_r(json_encode($items));  
     }
 
@@ -97,7 +97,7 @@ class ProductsController
         $sth->execute([ 
             ':categorysubsub' => $categorysubsub  
         ]);
-        $result = $sth->fetchAll();
+        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
         print_r(json_encode($result));  
     }
 
@@ -109,19 +109,19 @@ class ProductsController
         $sth->execute([ 
             ':id' => intval($id)  
         ]);
-        $result = $sth->fetchAll();
+        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
     private function getCategorySubSubProductById(string $id)
     {
-        $sql = "SELECT title_ua FROM categorysubsub WHERE id = (SELECT category_sub_id FROM products WHERE id = :id);";
+        $sql = "SELECT title_ua FROM categorysubsub WHERE id = (SELECT category_sub_sub_id FROM products WHERE id = :id);";
         $sth = $this->model->getDB()->prepare($sql); 
         
         $sth->execute([ 
             ':id' => intval($id)  
         ]);
-        $result = $sth->fetchAll();
+        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
@@ -133,7 +133,7 @@ class ProductsController
         $sth->execute([ 
             ':id' => intval($id)  
         ]);
-        $result = $sth->fetchAll();
+        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
@@ -145,7 +145,7 @@ class ProductsController
         $sth->execute([ 
             ':id' => intval($id)  
         ]);
-        $result = $sth->fetchAll();
+        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
@@ -167,6 +167,7 @@ class ProductsController
         print_r(json_encode($items)); 
     }
 
+
     public function getProductById(string $id)
     {
         $items = [];
@@ -179,7 +180,7 @@ class ProductsController
             ':id' => intval($id)    
         ]);
 
-        $items = $sth->fetchAll();
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
         print_r(json_encode($items));  
     }
 
