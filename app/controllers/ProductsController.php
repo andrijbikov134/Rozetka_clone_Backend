@@ -109,7 +109,7 @@ class ProductsController
         $sth->execute([ 
             ':id' => intval($id)  
         ]);
-        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+        $result = $sth->fetchAll();
         return $result;
     }
 
@@ -121,7 +121,7 @@ class ProductsController
         $sth->execute([ 
             ':id' => intval($id)  
         ]);
-        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+        $result = $sth->fetchAll();
         return $result;
     }
 
@@ -133,7 +133,7 @@ class ProductsController
         $sth->execute([ 
             ':id' => intval($id)  
         ]);
-        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+        $result = $sth->fetchAll();
         return $result;
     }
 
@@ -145,7 +145,7 @@ class ProductsController
         $sth->execute([ 
             ':id' => intval($id)  
         ]);
-        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+        $result = $sth->fetchAll();
         return $result;
     }
 
@@ -249,31 +249,5 @@ class ProductsController
     {
         $data = $this->model->getProductsList();
         print_r(json_encode($data));
-    }
-
-    public function create(string $name, string $email, string $status, string $type, string $ssn)
-    {
-        if($name == "" ||  $email == "" || $ssn == "")
-        {
-            echo "<p class=\"red\">All fields must be filled in!</p>";
-        }
-        else if(!str_contains($email, "@"))
-        {
-            echo "<p class=\"red\">Email is incorrect!</p>";
-        }
-        else
-        {
-            $this->addNewUserInDB($name, $email, $status, $type, $ssn);
-        }
-        $this->render('index', [
-            'users' => $this->model->getUsersList(),
-        ]);
-    }    
-
-    public function render(string $page, array $data = []): void
-    {
-        extract($data);
-        
-        require_once VIEWS_PATH . '/master.php';
     }
 }

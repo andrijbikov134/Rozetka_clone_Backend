@@ -27,6 +27,8 @@ return [
 
         'loginuser' => 'UsersController@loginUser' ,
         'registeruser' => 'UsersController@registerUser' ,
+
+        'getcategoriessub' => 'CategoriesSubController@getCategoriesSub' ,
     ],
     'service_container' => [
             'ProductsController' => [
@@ -63,6 +65,10 @@ return [
             [
                 'class' => 'OrderIdProductIdModel',
             ],
+            'CategoriesSubController' =>
+            [
+                'class' => 'CategorySubModel',
+            ]
                
     ],
     'params' => 

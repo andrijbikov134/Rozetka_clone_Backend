@@ -36,7 +36,7 @@ class ReviewsController
         $sth->execute([ 
             ':id' => intval($id)  
         ]);
-        $items = $sth->fetchAll();
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
         print_r(json_encode($items)); 
     }
 

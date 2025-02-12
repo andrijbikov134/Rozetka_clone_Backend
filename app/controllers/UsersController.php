@@ -39,7 +39,10 @@ class UsersController
                 "message" => "Авторизація успішна!",
                 "user" => [
                     "id" => $user['id'],
-                    "first_name" => $user['first_name']
+                    "first_name" => $user['first_name'],
+                    "last_name" => $user['last_name'],
+                    "phone" => $user['phone']
+
                 ]
             ]);
         } else {
@@ -61,7 +64,12 @@ class UsersController
         $password = trim($data['password']);
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(["error" => "Некоректний email"]);
+            echo json_encode(["error" => "Некоректний email", "type" => "email"]);
+            exit();
+        }
+        else if($password == '')
+        {
+            echo json_encode(["error" => "Некоректний password", "type" => "password" ]);
             exit();
         }
 
