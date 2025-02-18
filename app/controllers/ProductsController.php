@@ -73,20 +73,68 @@ class ProductsController
         print_r(json_encode($items)); 
     }
 
-    public function getProductsWithFilters(string $input_title)
+    public function getProductsWithFilters(string $category, string $categorysub, string $categorysubsub, ?string $price = null, ?string $sort = null)
     {
         $items = [];
-        $input_title = strtolower($input_title);
+        $sql = "SELECT * FROM products WHERE category_id = (SELECT id FROM category WHERE LOWER(title) =  :category)
+        AND category_sub_id = (SELECT id FROM categorysub WHERE LOWER(title) =  :category_sub)
+        AND category_sub_sub_id = (SELECT id FROM categorysubsub WHERE LOWER(title) =  :category_sub_sub)";
 
-        $sql = "SELECT * FROM products WHERE LOWER(title) LIKE :input_title;";
-        $sth = $this->model->getDB()->prepare($sql); 
+        $params = [
+            ':category' => strtolower($category),
+            ':category_sub' => strtolower($categorysub),
+            ':category_sub_sub' => strtolower($categorysubsub) . "_" . strtolower($category),
+        ];
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if(count($input['brands']) != 0)
+        {
+            $sql_brands = " AND brand_id in (";
+            for ($i=0; $i < count($input['brands']); ++$i)
+            { 
+                if($i == count($input['brands'])-1)
+                {
+                    $sql_brands .= $input['brands'][$i] . ")";
+                }
+                else
+                {
+                    $sql_brands .= $input['brands'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_brands;
+        }
         
-        $sth->execute([ 
-            ':input_title' => '%' .  $input_title . "%"    
-        ]);
+        $priceRange = $input['priceRange'];
+        $sql .= " AND price BETWEEN " . $priceRange['min']  . " AND " . $priceRange['max'];
 
+        if(count($input['sizes']) != 0)
+        {
+            $sql_sizes = " AND id IN (SELECT productid FROM productidsizeid WHERE sizeid in (";
+            for ($i=0; $i < count($input['sizes']); ++$i)
+            { 
+                if($i == count($input['sizes'])-1)
+                {
+                    $sql_sizes .= $input['sizes'][$i] . "))";
+                }
+                else
+                {
+                    $sql_sizes .= $input['sizes'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_sizes;
+        }
+        if($input['sort'] != 'rating')
+        {
+            $sql .= ' ORDER BY price ' . $input['sort'];
+        }
+        
+        // file_put_contents('D:/log.txt', print_r($sql,true), FILE_APPEND);
+
+        $sth = $this->model->getDB()->prepare($sql);
+        $sth->execute($params);
         $items = $sth->fetchAll(PDO::FETCH_ASSOC);
-        print_r(json_encode($items));  
+
+        print_r(json_encode($items));
     }
 
     public function getCategorySubSubTitle(string $categorysubsub)
@@ -183,67 +231,7 @@ class ProductsController
         $items = $sth->fetchAll(PDO::FETCH_ASSOC);
         print_r(json_encode($items));  
     }
-
-    public function loadFromAPI()
-    {
-      $this->deleteUsersFromDB();
-
-      $url = USERS_JSON;
-      $jsonData = file_get_contents($url);
-      $users = json_decode($jsonData, true)['users'];
-
-      $statuses = ['active', 'not active'];
-      $types = ['publisher', 'writer', 'moderator'];
-      foreach ($users as $user) 
-      {
-        $newUser = [
-          'name' => $user['firstName'] . " " . $user['lastName'],
-          'email' => $user['email'],
-          'status' => $statuses[rand(0,1)],
-          'type' => $types[rand(0,2)],
-          'ssn' => $user['ssn'],
-        ];
-        $this->addNewUserInDB($newUser['name'],$newUser['email'],$newUser['status'],$newUser['type'],$newUser['ssn']);
-      }
-
-      $this->render('index', [
-          'users' =>  $this->model->getUsersList()
-      ]);
-    }
-
-    public function deleteUsersFromDB()
-    {
-      $sql = "DELETE FROM users";
-      $sth = $this->model->getDB()->prepare($sql);
-      $edited = $sth->execute([]);
-    }
-
-    public function removeAllUsers()
-    {
-      $this->deleteUsersFromDB();
-
-      $this->render('index', [
-          'users' =>  $this->model->getUsersList()
-      ]);
-    }
-
-    public function deleteUserFromDB(int $userId)
-    {
-        $sql = "DELETE FROM users WHERE id = :userId";
-        $sth = $this->model->getDB()->prepare($sql);
-        $edited = $sth->execute([ 
-            ':userId' => $userId,
-        ]);
-    }
-
-    public function remove(int $userId)
-    {
-        $this->deleteUserFromDB($userId);
-
-        $this->render('index', [
-            'users' =>  $this->model->getUsersList()
-        ]);
-    }
+  
 
     public function getPopularProducts()
     {

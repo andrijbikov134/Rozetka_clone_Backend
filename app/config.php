@@ -2,8 +2,9 @@
 
 return [
     'routes' => [
-        'getpopularproducts' => 'ProductsController@getPopularProducts',     // index.php?action=index
-        'getcategories' => 'ProductsController@getCategories',   // index.php?action=delete&id=10
+        'getpopularproducts' => 'OrderIdProductIdController@getPopularProducts',     // index.php?action=index
+        'getcategories' => 'ProductsController@getCategories', 
+          // index.php?action=delete&id=10
         'getproductsfilteredbytitle' => 'ProductsController@getProductsFilteredByTitle',   // index.php?action=delete&id=10
         'getproductbyid' => 'ProductsController@getProductById',
         'getproductswithoutfilters' => 'ProductsController@getProductsWithoutFilters',  
@@ -27,8 +28,14 @@ return [
 
         'loginuser' => 'UsersController@loginUser' ,
         'registeruser' => 'UsersController@registerUser' ,
+        'getuserbyid' => 'UsersController@getUserById',
 
         'getcategoriessub' => 'CategoriesSubController@getCategoriesSub' ,
+
+        'getissaleproductsbyuser' => 'OrderIdProductIdController@getIsSaleProductsByUser' ,
+
+        'getallbrands' => 'FiltersController@getAllBrands', 
+        'getallsizes' => 'FiltersController@getAllSizes',
     ],
     'service_container' => [
             'ProductsController' => [
@@ -68,6 +75,10 @@ return [
             'CategoriesSubController' =>
             [
                 'class' => 'CategorySubModel',
+            ],
+            'FiltersController' =>
+            [
+                'class' => 'FilterModel',
             ]
                
     ],

@@ -51,12 +51,19 @@ if (isset($routes[$action]))
             
             $controller->$method($input_title);
         }
-        else if($action == "getproductbyid" || $action == "getreviewsproductbyid" || $action == "getsizebyid" || $action == "getcolorbyid")
+        else if($action == "getproductbyid" || $action == "getreviewsproductbyid" || $action == "getsizebyid" || $action == "getcolorbyid" || $action == 'getuserbyid')
         {
             $id = $_GET['id'];
             $controller->$method($id);
         }
         else if($action == "getproductswithoutfilters")
+        {
+            $category = $_GET['category'];
+            $categorysub = $_GET['categorysub'];
+            $categorysubsub = $_GET['categorysubsub'];
+            $controller->$method($category,$categorysub,$categorysubsub);
+        }
+        else if($action == "getproductswithfilters")
         {
             $category = $_GET['category'];
             $categorysub = $_GET['categorysub'];
@@ -78,9 +85,11 @@ if (isset($routes[$action]))
             $productId = $_GET['productId'];
             $controller->$method($productId);
         }
-        else if($action == 'createorder')
+        else if($action == 'getissaleproductsbyuser')
         {
-            $controller->$method();
+            $product_id = $_GET['product_id'];
+            $user_id = $_GET['user_id'];
+            $controller->$method($product_id,$user_id);
         }
         else
         {

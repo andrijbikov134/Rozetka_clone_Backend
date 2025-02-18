@@ -1,6 +1,7 @@
 <?php
-use \Datetime;
-
+//use \Datetime;
+header('Content-Type: application/json'); 
+error_reporting(E_ALL ^ E_WARNING);
 class OrdersController
 {
     public function __construct(
@@ -11,10 +12,8 @@ class OrdersController
 
     public function createOrder()
     {
-      header('Content-Type: application/json'); 
       date_default_timezone_set('Europe/Kyiv');
       
-      $now = new DateTime();
 
       $input = json_decode(file_get_contents('php://input'), true);
       $payment_method = $input['payment_method'];
@@ -82,16 +81,14 @@ class OrdersController
         ]
         );
         $recipient_id = $this->model->getDB()->lastInsertId();
-      }
-
-
-      
+      }      
 
       ////////////////////////////////////////////////////////////
       // Вставити замовленняд до таблиці orders
       $sql = "INSERT INTO orders (id, user_id, date_order, delivery_type_id, payment_type_id, recipient_id, delivery_index, delivery_full_address) VALUES (:id, :user_id, :date_order, :delivery_type_id, :payment_type_id, :recipient_id, :delivery_index, :delivery_full_address)";
       $user_id = $input['user'] == 0 ? NULL : $input['user']['id'];
       $sth = $this->model->getDB()->prepare($sql);
+      $now = new DateTime();
       $sth->execute([ 
           ':id' => NULL, 
           ':user_id' => $user_id, 
@@ -124,6 +121,6 @@ class OrdersController
       }
 
     //   file_put_contents('D:/log.txt', print_r($order_id,true), FILE_APPEND);
-    //   print_r($order_id); 
+      print_r(json_encode($order_id)); 
     }
 }
