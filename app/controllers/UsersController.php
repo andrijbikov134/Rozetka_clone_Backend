@@ -60,8 +60,14 @@ class UsersController
                     "id" => $user['id'],
                     "first_name" => $user['first_name'],
                     "last_name" => $user['last_name'],
+                    "patronymic" => $user['patronymic'],
+                    "gender" => $user['gender'],
+                    "birthday" => $user['birthday'],
+                    "email" => $user['email'],
+                    "city" => $user['city'],
                     "phone" => $user['phone'],
-                    "role" => $role['title'],
+                    "role" => $role['title']
+
                 ]
             ]);
         } else {
@@ -119,5 +125,37 @@ class UsersController
                 echo json_encode(["error" => "Помилка сервера: " . $e->getMessage()]);
             }
         } 
+    }
+
+    public function updateProfile()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!isset($data['id'])) {
+            echo json_encode(["error" => "ID користувача є обов'язковим"]);
+            exit();
+        }
+
+        $user_id = intval($data['id']);
+        $first_name = trim($data['first_name'] ?? '');
+        $last_name = trim($data['last_name'] ?? '');
+        $patronymic = trim($data['patronymic'] ?? '');
+        $gender = trim($data['gender'] ?? '');
+        $birthday = trim($data['birthday'] ?? '');
+        $city = trim($data['city'] ?? '');
+        $phone = trim($data['phone'] ?? '');
+
+
+        try {
+            $stmt = $this->model->getDB()->prepare("
+                UPDATE users 
+                SET first_name = ?, last_name = ?, patronymic = ?, gender = ?, birthday = ?, city = ?, phone = ?
+                WHERE id = ?");
+            $stmt->execute([$first_name, $last_name, $patronymic, $gender, $birthday, $city, $phone, $user_id]);
+
+            echo json_encode(["message" => "Профіль оновлено успішно!"]);
+        } catch (PDOException $e) {
+            echo json_encode(["error" => "Помилка оновлення: " . $e->getMessage()]);
+        }
     }
 }

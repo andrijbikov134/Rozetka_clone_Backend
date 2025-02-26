@@ -11,7 +11,9 @@ return [
         'getproductswithfilters' => 'ProductsController@getProductsWithFilters',
         'getcategorysubsubtitle' => 'ProductsController@getCategorySubSubTitle',
         'getproductcharacteristics' => 'ProductsController@getProductCharacteristics',
-         
+        'addorupdateproductindb' => 'ProductsController@addOrUpdateProductInDB',
+        'deleteproductfromdb' => 'ProductsController@deleteProductFromDB',
+
         
         
         // index.php?action=delete&id=10
@@ -29,13 +31,20 @@ return [
         'loginuser' => 'UsersController@loginUser' ,
         'registeruser' => 'UsersController@registerUser' ,
         'getuserbyid' => 'UsersController@getUserById',
+        'updateprofile' => 'UsersController@updateProfile',
 
         'getcategoriessub' => 'CategoriesSubController@getCategoriesSub' ,
 
         'getissaleproductsbyuser' => 'OrderIdProductIdController@getIsSaleProductsByUser' ,
+        'getordersbyuserid' => 'OrdersController@getOrdersByUserId',
+
 
         'getallbrands' => 'FiltersController@getAllBrands', 
         'getallsizes' => 'FiltersController@getAllSizes',
+        'getallmaterials' => 'FiltersController@getAllMaterials',
+        'getallcolors' => 'FiltersController@getAllColors',
+        'getallcountries' => 'FiltersController@getAllCountries',
+
     ],
     'service_container' => [
             'ProductsController' => [

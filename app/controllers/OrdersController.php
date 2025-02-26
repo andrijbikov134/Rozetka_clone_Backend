@@ -120,7 +120,98 @@ class OrdersController
         ); 
       }
 
-    //   file_put_contents('D:/log.txt', print_r($order_id,true), FILE_APPEND);
       print_r(json_encode($order_id)); 
     }
+
+    public function getOrdersByUserId()
+    {
+      header('Content-Type: application/json');
+
+      $input = json_decode(file_get_contents('php://input'), true);
+
+      $user_id = $input['user_id']; 
+
+      $sql = "SELECT o.id AS order_id, o.date_order, p.title AS product_name, op.quantity, (op.quantity * op.price) AS total_price
+              FROM orders o
+              JOIN orderidproductid op ON o.id = op.order_id
+              JOIN products p ON op.product_id = p.id
+              WHERE o.user_id = :user_id
+              ORDER BY o.date_order DESC";
+
+      $sth = $this->model->getDB()->prepare($sql);
+      error_log("Викликається getOrdersByUserId() з user_id: " . $user_id);
+      $sth->execute([":user_id" => $user_id]);
+      $orders = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+      echo json_encode(["orders" => $orders]);
+    }
+
+
+    public function getOrders()
+  {
+    header('Content-Type: application/json');
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    error_log("getOrders: Виконання методу");
+
+    if (!isset($_SESSION['user_id'])) {
+        error_log("getOrders: Користувач не авторизований");
+        echo json_encode(["error" => "Користувач не авторизований"]);
+        exit();
+    }
+
+    $userId = $_SESSION['user_id'];
+    error_log("getOrders: user_id = " . $userId);
+
+    try
+    {
+      $sql = "SELECT o.id AS order_id, o.date_order, o.delivery_type_id, 
+                       o.payment_type_id, o.recipient_id, o.delivery_index, 
+                       o.delivery_full_address
+                FROM orders o
+                WHERE o.user_id = :user_id
+                ORDER BY o.date_order DESC";
+
+      $sth = $this->model->getDB()->prepare($sql);
+      $sth->execute([":user_id" => $userId]);
+      $orders = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+      error_log("getOrders: Отримані дані: " . json_encode($orders));
+
+      if (!$orders) 
+      {
+          error_log("getOrders: Замовлення не знайдено");
+          echo json_encode(["message" => "Замовлення не знайдено", "orders" => []]);
+          exit();
+      }
+
+      error_log("getOrders: SQL виконано, кількість результатів: " . count($orders));
+      echo json_encode(["orders" => $orders]);
+      exit();
+    } 
+    catch (Exception $e) 
+    {
+        error_log("getOrders: Помилка сервера: " . $e->getMessage());
+        echo json_encode(["error" => "Помилка сервера", "details" => $e->getMessage()]);
+    }
+  } 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

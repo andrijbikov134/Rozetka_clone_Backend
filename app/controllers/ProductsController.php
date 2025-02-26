@@ -8,26 +8,203 @@ class ProductsController
     {
     }
 
-    private function addNewUserInDB(string $name, string $email, string $status, string $type, string $ssn)
+    private function getCategoryIdByTitle (string $title)
     {
-        $sql = "INSERT INTO users (id, name, email, status, type, ssn) VALUES (:id, :name, :email, :status, :type, :ssn);";
+        $sql = "SELECT id FROM category WHERE title = :title";
         $sth = $this->model->getDB()->prepare($sql);
 
         $created = $sth->execute([ 
-            ':id' => NULL,
-            ':name' => $name,
-            ':email' => $email,
-            ':status' => $status,
-            ':type' => $type,
-            ':ssn' => $ssn,
+            ':title' => $title,
         ]);
+        $item = $sth->fetchAll();
+        return $item[0][0];
+    }
+
+    private function getCategorySubIdByTitle (string $title)
+    {
+        $sql = "SELECT id FROM categorysub WHERE title = :title";
+        $sth = $this->model->getDB()->prepare($sql);
+
+        $created = $sth->execute([ 
+            ':title' => $title,
+        ]);
+        $item = $sth->fetchAll();
+        return $item[0][0];
+    }
+
+    private function getCategorySubSubIdByTitle (string $category, string $category_sub_sub)
+    {
+        $title = $category_sub_sub . '_' . $category;
+
+        $sql = "SELECT id FROM categorysubsub WHERE title = :title";
+        $sth = $this->model->getDB()->prepare($sql);
+
+        $created = $sth->execute([ 
+            ':title' => $title,
+        ]);
+        $item = $sth->fetchAll();
+        return $item[0][0];
+    }
+
+    public function addOrUpdateProductInDB()
+    {
+        $input = json_decode(file_get_contents("php://input"), true);
+        $id = $input['id'];
+        $title = $input['title'];
+        $color_id = $input['color_id'];
+        $brand_id = $input['brand_id'];
+        $price = $input['price'];
+        $material_id = $input['material_id'];
+        $country_product_id = $input['country_product_id'];
+        $part_number = $input['part_number'];
+        $category = $input['category'];
+        $categorySub = $input['categorySub'];
+        $categorySubSub = $input['categorySubSub'];
+
+        $category_id = $this->getCategoryIdByTitle($category);
+        $categorysub_id = $this->getCategorySubIdByTitle($categorySub);
+        $categorysubsub_id = $this->getCategorySubSubIdByTitle($category, $categorySubSub);
+
+        if($id == null)
+        {
+            $sql = "INSERT INTO products (id, title, color_id, brand_id, price, material_id, country_product_id, part_number, category_id, category_sub_id, category_sub_sub_id) VALUES (:id, :title, :color_id, :brand_id, :price, :material_id, :country_product_id, :part_number, :category_id, :category_sub_id, :category_sub_sub_id);";
+            $sth = $this->model->getDB()->prepare($sql);
+    
+            $created = $sth->execute([ 
+                ':id' => NULL,
+                ':title' => $title,
+                ':color_id' => $color_id,
+                ':brand_id' => $brand_id,
+                ':price' => $price,
+                ':material_id' => $material_id,
+                ':country_product_id' => $country_product_id,
+                ':part_number' => $part_number,
+                ':category_id' => $category_id,
+                ':category_sub_id' => $categorysub_id,
+                ':category_sub_sub_id' => $categorysubsub_id,
+
+            ]);
+
+            $product_id = $this->model->getDB()->lastInsertId();
+            $sizes = $input['sizes'];
+
+            for ($i=0; $i < count($sizes); ++$i) 
+            { 
+                $sql = "INSERT INTO productidsizeid (id, productid, sizeid) VALUES (:id, :product_id, :size_id);";
+                $sth = $this->model->getDB()->prepare($sql);
+                $created = $sth->execute([ 
+                    ':id' => NULL,
+                    ':product_id' => $product_id,
+                    ':size_id' => $sizes[$i]['id'],    
+                ]);
+            }
+        }
+        else
+        {
+            $sql = "UPDATE products set title = :title, color_id = :color_id, brand_id = :brand_id, price = :price, material_id = :material_id, country_product_id = :country_product_id, part_number = :part_number, category_id = :category_id, category_sub_id = :category_sub_id, category_sub_sub_id = :category_sub_sub_id WHERE id = :id;";
+            $sth = $this->model->getDB()->prepare($sql);
+    
+            $created = $sth->execute([ 
+                ':id' => $id,
+                ':title' => $title,
+                ':color_id' => $color_id,
+                ':brand_id' => $brand_id,
+                ':price' => $price,
+                ':material_id' => $material_id,
+                ':country_product_id' => $country_product_id,
+                ':part_number' => $part_number,
+                ':category_id' => $category_id,
+                ':category_sub_id' => $categorysub_id,
+                ':category_sub_sub_id' => $categorysubsub_id,
+
+            ]);
+
+            $sizes = $input['sizes'];
+
+            $sql = "SELECT * FROM productidsizeid WHERE productid = :product_id;";
+            $sth = $this->model->getDB()->prepare($sql);
+            $created = $sth->execute([ 
+                ':product_id' => $id,
+            ]);
+            $oldSizes = $sth->fetchAll();
+
+            for ($i=0; $i < count($sizes); ++$i) 
+            {
+                $oldSizesId = array_column($oldSizes, 'sizeid');
+                $found_key = array_search($sizes[$i]['id'], $oldSizesId);
+
+                if($found_key === false)
+                {
+                    $sql = "INSERT INTO productidsizeid (id, productid, sizeid) VALUES (:id, :product_id, :size_id);";
+                    $sth = $this->model->getDB()->prepare($sql);
+                    $created = $sth->execute([ 
+                        ':id' => NULL,
+                        ':product_id' => $id,
+                        ':size_id' => $sizes[$i]['id'],    
+                    ]);
+                }
+            }
+            for ($i=0; $i < count($oldSizes); ++$i)
+            { 
+                $newSizesId = array_column($sizes, 'id');
+                $found_key = array_search($oldSizes[$i]['sizeid'], $newSizesId);
+                if($found_key === false)
+                {
+                    $sql = "DELETE FROM productidsizeid WHERE id = :id;";
+                    $sth = $this->model->getDB()->prepare($sql);
+                    $created = $sth->execute([ 
+                        ':id' => $oldSizes[$i]['id'],
+                    ]);
+                }
+            }
+        }
+        return 0;
+    }
+
+    public function deleteProductFromDB()
+    {
+        $input = json_decode(file_get_contents("php://input"), true);
+        $id = $input['id'];
+
+        $sql = "SELECT * FROM orderidproductid WHERE product_id = :id;";
+        $sth = $this->model->getDB()->prepare($sql);
+
+        $created = $sth->execute([ 
+            ':id' => $id,
+            ]);
+        
+            $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+        
+        if(count($items) == 0)
+        {
+
+            $sql = "DELETE FROM productidsizeid WHERE productid = :id;";
+            $sth = $this->model->getDB()->prepare($sql);
+    
+            $created = $sth->execute([ 
+                ':id' => $id,
+                ]);
+    
+            $sql = "DELETE FROM products WHERE id = :id;";
+            $sth = $this->model->getDB()->prepare($sql);
+    
+            $created = $sth->execute([ 
+                ':id' => $id,
+                ]);
+            print_r(json_encode(["error" => "OK"]));
+        }
+        else
+        {
+            print_r(json_encode(["error" => "Існують замовлення з обраним товаром! Товар можна тільки приховати!"]));
+        }
+
     }
 
     public function getCategories(string $category, string $categorysub)
     {
         $items = [];
 
-        $sql = "SELECT * FROM categorysubsub WHERE title LIKE :category AND categorysub_id = (SELECT id FROM categorysub WHERE title =  :category_sub);";
+        $sql = "SELECT * FROM categorysubsub WHERE title LIKE :category AND categorysub_id = (SELECT id FROM categorysub WHERE title =  :category_sub) ORDER BY title_ua ASC;";
         $sth = $this->model->getDB()->prepare($sql); 
         
         $sth->execute([ 
@@ -197,6 +374,18 @@ class ProductsController
         return $result;
     }
 
+    private function getCountryProductById(string $id)
+    {
+        $sql = "SELECT title FROM countriesproduct WHERE id = (SELECT country_product_id FROM products WHERE id = :id);";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':id' => intval($id)  
+        ]);
+        $result = $sth->fetchAll();
+        return $result;
+    }
+
     public function getProductCharacteristics(string $id)
     {
         $items = [];
@@ -211,6 +400,9 @@ class ProductsController
 
         $result = $this->getMaterialProductById($id);
         $items['material'] = $result[0][0];
+
+        $result = $this->getCountryProductById($id);
+        $items['country'] = $result[0][0];
 
         print_r(json_encode($items)); 
     }
