@@ -9,11 +9,12 @@ return [
         'getproductbyid' => 'ProductsController@getProductById',
         'getproductswithoutfilters' => 'ProductsController@getProductsWithoutFilters',  
         'getproductswithfilters' => 'ProductsController@getProductsWithFilters',
-        'getcategorysubsubtitle' => 'ProductsController@getCategorySubSubTitle',
         'getproductcharacteristics' => 'ProductsController@getProductCharacteristics',
         'addorupdateproductindb' => 'ProductsController@addOrUpdateProductInDB',
         'deleteproductfromdb' => 'ProductsController@deleteProductFromDB',
+        'deleteimgfromgooglebucket' => 'ProductsController@deleteImgFromGoogleBucket',
 
+        
         
         
         // index.php?action=delete&id=10
@@ -27,13 +28,20 @@ return [
         'getcolorbyid' => 'ColorsController@getColorById',
         
         'createorder' => 'OrdersController@createOrder',
-
+        
         'loginuser' => 'UsersController@loginUser' ,
         'registeruser' => 'UsersController@registerUser' ,
         'getuserbyid' => 'UsersController@getUserById',
         'updateprofile' => 'UsersController@updateProfile',
-
+        
         'getcategoriessub' => 'CategoriesSubController@getCategoriesSub' ,
+        'getcategorysubtitlebyid' => 'CategoriesSubController@getCategorySubTitleById' ,
+        
+        'getcategorysubsubtitlebyid' => 'CategoriesSubSubController@getCategorySubSubTitleById' ,
+        'getcategorysubsubtitleua' => 'CategoriesSubSubController@getCategorySubSubTitleUa',
+
+        'getcategorytitlebyid' => 'CategoriesController@getCategoryTitleById' ,
+
 
         'getissaleproductsbyuser' => 'OrderIdProductIdController@getIsSaleProductsByUser' ,
         'getordersbyuserid' => 'OrdersController@getOrdersByUserId',
@@ -84,6 +92,14 @@ return [
             'CategoriesSubController' =>
             [
                 'class' => 'CategorySubModel',
+            ],
+            'CategoriesController' =>
+            [
+                'class' => 'CategoryModel',
+            ],
+            'CategoriesSubSubController' =>
+            [
+                'class' => 'CategorySubSubModel',
             ],
             'FiltersController' =>
             [

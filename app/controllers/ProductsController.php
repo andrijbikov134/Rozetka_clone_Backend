@@ -1,5 +1,7 @@
 <?php
 
+use Google\Cloud\Storage\StorageClient; // для відправки картинки на Google Cloud
+
 class ProductsController
 {
     public function __construct(
@@ -45,29 +47,100 @@ class ProductsController
         $item = $sth->fetchAll();
         return $item[0][0];
     }
-
+    
     public function addOrUpdateProductInDB()
     {
+        require dirname(__DIR__,2) . '/vendor/autoload.php'; // Підключити автозавантажувач Composer для відправки картинки на Google Cloud
+    
         $input = json_decode(file_get_contents("php://input"), true);
-        $id = $input['id'];
-        $title = $input['title'];
-        $color_id = $input['color_id'];
-        $brand_id = $input['brand_id'];
-        $price = $input['price'];
-        $material_id = $input['material_id'];
-        $country_product_id = $input['country_product_id'];
-        $part_number = $input['part_number'];
-        $category = $input['category'];
-        $categorySub = $input['categorySub'];
-        $categorySubSub = $input['categorySubSub'];
+        
+        // error_log(print_r($_POST,true));
+        // error_log(print_r($_FILES,true));
 
+
+        $id = $_POST['id'];
+        $title = $_POST['title'];
+        $color_id = $_POST['color_id'];
+        $brand_id = $_POST['brand_id'];
+        $price = $_POST['price'];
+        $material_id = $_POST['material_id'];
+        $country_product_id = $_POST['country_product_id'];
+        $part_number = $_POST['part_number'];
+        $category = $_POST['category'];
+        $categorySub = $_POST['categorySub'];
+        $categorySubSub = $_POST['categorySubSub'];
+        $oldImgPath = $_POST['oldImgPath'];
+
+        error_log(print_r($_POST, true) . PHP_EOL);
+        error_log(print_r($$_FILES['file'], true) . PHP_EOL);
+
+
+        if(isset($_FILES['file']))
+        {
+            $file = $_FILES['file'];
+            // Настройте переменные
+            $projectId = 'arctic-marking-450608-f8'; // Ваш Project ID
+            $bucketName = 'clothes_store'; // Название вашего бакета
+    
+            // Путь к вашему файлу с учетными данными JSON
+            $path_env = dirname(__DIR__,2) . '/arctic-marking-450608-f8-6f543f6e3329.json';
+            putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $path_env);
+    
+            // Создаём объект StorageClient
+            $storage = new StorageClient([
+                'projectId' => $projectId,
+            ]);
+    
+            // Получаем объект бакета
+            $bucket = $storage->bucket($bucketName);
+    
+            $objectName = $file['name']; 
+            $fileNames = explode(".", $objectName);
+    
+            // Указываем путь к файлу, который хотите загрузить
+            $filePath = $file['tmp_name'];
+    
+            $hashed_filename = floor(microtime(true) * 1000) . '.' . $fileNames[1];  // Имя объекта в DB
+            $filename = 'img/' . $category . "/" . $categorySub . '/' . $categorySubSub . '/' . $hashed_filename;  // Имя объекта в бакете
+            
+            // Загружаем файл в Google Cloud Storage
+            $bucket->upload(
+                fopen($filePath, 'r'),
+                [
+                    'name' => $filename, // Имя файла в облаке
+                ]
+            );
+            if($oldImgPath != '')
+            {
+                // Видалити картинку
+                $object = $bucket->object($oldImgPath);
+                $object->delete();
+            }
+        }
+        else
+        {
+            $filename = $oldImgPath;
+        }
+
+
+
+
+        // Видалити картинку
+        // $object = $bucket->object('img/women/clothes/jackets/6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b.png');
+        // $object->delete();
+
+        // Подивитися зміст backet
+        // $objects = $bucket->objects();
+        // error_log("!!!!!!!!!!!!" . PHP_EOL);
+        // foreach ($objects as $object) {
+        //     error_log($object->name());
+        // }
         $category_id = $this->getCategoryIdByTitle($category);
         $categorysub_id = $this->getCategorySubIdByTitle($categorySub);
         $categorysubsub_id = $this->getCategorySubSubIdByTitle($category, $categorySubSub);
-
-        if($id == null)
+        if($id == 'null')
         {
-            $sql = "INSERT INTO products (id, title, color_id, brand_id, price, material_id, country_product_id, part_number, category_id, category_sub_id, category_sub_sub_id) VALUES (:id, :title, :color_id, :brand_id, :price, :material_id, :country_product_id, :part_number, :category_id, :category_sub_id, :category_sub_sub_id);";
+            $sql = "INSERT INTO products (id, title, color_id, brand_id, price, material_id, country_product_id, part_number, category_id, category_sub_id, category_sub_sub_id, pictures_path) VALUES (:id, :title, :color_id, :brand_id, :price, :material_id, :country_product_id, :part_number, :category_id, :category_sub_id, :category_sub_sub_id, :pictures_path);";
             $sth = $this->model->getDB()->prepare($sql);
     
             $created = $sth->execute([ 
@@ -82,11 +155,17 @@ class ProductsController
                 ':category_id' => $category_id,
                 ':category_sub_id' => $categorysub_id,
                 ':category_sub_sub_id' => $categorysubsub_id,
+                ':pictures_path' => $filename, 
 
             ]);
 
             $product_id = $this->model->getDB()->lastInsertId();
-            $sizes = $input['sizes'];
+
+            $sizes_json = $_POST['sizes'];
+            $sizes = [];
+            for ($i=0; $i < count($sizes_json); $i++) { 
+                $sizes[$i] = json_decode($sizes_json[$i], true);
+            }
 
             for ($i=0; $i < count($sizes); ++$i) 
             { 
@@ -101,9 +180,10 @@ class ProductsController
         }
         else
         {
-            $sql = "UPDATE products set title = :title, color_id = :color_id, brand_id = :brand_id, price = :price, material_id = :material_id, country_product_id = :country_product_id, part_number = :part_number, category_id = :category_id, category_sub_id = :category_sub_id, category_sub_sub_id = :category_sub_sub_id WHERE id = :id;";
+            
+            $sql = "UPDATE products set title = :title, color_id = :color_id, brand_id = :brand_id, price = :price, material_id = :material_id, country_product_id = :country_product_id, part_number = :part_number, category_id = :category_id, category_sub_id = :category_sub_id, category_sub_sub_id = :category_sub_sub_id, pictures_path = :pictures_path WHERE id = :id;";
             $sth = $this->model->getDB()->prepare($sql);
-    
+            error_log("NEW FILE NAME" . $filename);
             $created = $sth->execute([ 
                 ':id' => $id,
                 ':title' => $title,
@@ -116,10 +196,15 @@ class ProductsController
                 ':category_id' => $category_id,
                 ':category_sub_id' => $categorysub_id,
                 ':category_sub_sub_id' => $categorysubsub_id,
+                ':pictures_path' => $filename, 
 
             ]);
 
-            $sizes = $input['sizes'];
+            $sizes_json = $_POST['sizes'];
+            $sizes = [];
+            for ($i=0; $i < count($sizes_json); $i++) { 
+                $sizes[$i] = json_decode($sizes_json[$i], true);
+            }
 
             $sql = "SELECT * FROM productidsizeid WHERE productid = :product_id;";
             $sth = $this->model->getDB()->prepare($sql);
@@ -161,10 +246,61 @@ class ProductsController
         return 0;
     }
 
+    public function deleteImgFromGoogleBucket()
+    {
+        require dirname(__DIR__,2) . '/vendor/autoload.php'; // Підключити автозавантажувач Composer для відправки картинки на Google Cloud
+
+        $name = $_POST['imgPath'];
+
+        $projectId = 'arctic-marking-450608-f8'; // Ваш Project ID
+        $bucketName = 'clothes_store'; // Название вашего бакета
+
+        // Путь к вашему файлу с учетными данными JSON
+        $path_env = dirname(__DIR__,2) . '/arctic-marking-450608-f8-6f543f6e3329.json';
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $path_env);
+
+        // Создаём объект StorageClient
+        $storage = new StorageClient([
+            'projectId' => $projectId,
+        ]);
+
+        // Получаем объект бакета
+        $bucket = $storage->bucket($bucketName);
+
+        // Видалити картинку
+        $object = $bucket->object($name);
+        $object->delete();
+    }
+
     public function deleteProductFromDB()
     {
+        require dirname(__DIR__,2) . '/vendor/autoload.php'; // Підключити автозавантажувач Composer для відправки картинки на Google Cloud
+
         $input = json_decode(file_get_contents("php://input"), true);
+        error_log(print_r($input,true));
         $id = $input['id'];
+        $imgPath = $input['imgPath'];
+        
+        // Настройте переменные
+        $projectId = 'arctic-marking-450608-f8'; // Ваш Project ID
+        $bucketName = 'clothes_store'; // Название вашего бакета
+        // Путь к вашему файлу с учетными данными JSON
+        $path_env = dirname(__DIR__,2) . '/arctic-marking-450608-f8-6f543f6e3329.json';
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $path_env);
+        // Создаём объект StorageClient
+        $storage = new StorageClient([
+            'projectId' => $projectId,
+        ]);
+        // Получаем объект бакета
+        $bucket = $storage->bucket($bucketName);
+
+        // Видалити картинку
+        $object = $bucket->object($imgPath);
+        $object->delete();
+        
+
+
+
 
         $sql = "SELECT * FROM orderidproductid WHERE product_id = :id;";
         $sth = $this->model->getDB()->prepare($sql);
@@ -300,6 +436,23 @@ class ProductsController
             }
             $sql .= $sql_sizes;
         }
+        if(count($input['countries']) != 0)
+        {
+            $sql_countries = " AND country_product_id IN (";
+            for ($i=0; $i < count($input['countries']); ++$i)
+            { 
+                if($i == count($input['countries'])-1)
+                {
+                    $sql_countries .= $input['countries'][$i] . ")";
+                }
+                else
+                {
+                    $sql_countries .= $input['countries'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_countries;
+            error_log($sql);
+        }
         if($input['sort'] != 'rating')
         {
             $sql .= ' ORDER BY price ' . $input['sort'];
@@ -314,17 +467,7 @@ class ProductsController
         print_r(json_encode($items));
     }
 
-    public function getCategorySubSubTitle(string $categorysubsub)
-    {
-        $sql = "SELECT title_ua FROM categorysubsub WHERE LOWER(title) = :categorysubsub;";
-        $sth = $this->model->getDB()->prepare($sql); 
-        
-        $sth->execute([ 
-            ':categorysubsub' => $categorysubsub  
-        ]);
-        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
-        print_r(json_encode($result));  
-    }
+    
 
     private function getBrandProductById(string $id)
     {

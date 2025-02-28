@@ -51,7 +51,7 @@ if (isset($routes[$action]))
             
             $controller->$method($input_title);
         }
-        else if($action == "getproductbyid" || $action == "getreviewsproductbyid" || $action == "getsizebyid" || $action == "getcolorbyid" || $action == 'getuserbyid')
+        else if($action == "getproductbyid" || $action == "getreviewsproductbyid" || $action == "getsizebyid" || $action == "getcolorbyid" || $action == 'getuserbyid' || $action == 'getcategorysubtitlebyid' || $action == 'getcategorytitlebyid' || $action == 'getcategorysubsubtitlebyid')
         {
             $id = $_GET['id'];
             $controller->$method($id);
@@ -70,7 +70,7 @@ if (isset($routes[$action]))
             $categorysubsub = $_GET['categorysubsub'];
             $controller->$method($category,$categorysub,$categorysubsub);
         }
-        else if($action == "getcategorysubsubtitle")
+        else if($action == "getcategorysubsubtitleua")
         {
             $categorysubsub = $_GET['categorysubsub'];
             $controller->$method($categorysubsub);

@@ -20,4 +20,18 @@ class CategoriesSubController
 
       print_r(json_encode($item)); 
     }
+
+    public function getCategorySubTitleById(string $id)
+    {      
+      $sql = "SELECT title FROM categorysub WHERE id = :id";
+      $sth = $this->model->getDB()->prepare($sql); 
+      
+      $sth->execute([
+        ':id' => $id
+      ]);
+
+      $item = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+      print_r(json_encode($item[0])); 
+    }
 }

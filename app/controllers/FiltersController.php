@@ -23,7 +23,7 @@ class FiltersController
 
     public function getAllSizes()
     {
-      $sql = "SELECT * FROM sizes";
+      $sql = "SELECT * FROM sizes WHERE title_key = 'clothes'";
       $sth = $this->model->getDB()->prepare($sql); 
       
       $sth->execute([ 
