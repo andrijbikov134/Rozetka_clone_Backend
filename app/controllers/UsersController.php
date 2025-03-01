@@ -158,4 +158,50 @@ class UsersController
             echo json_encode(["error" => "Помилка оновлення: " . $e->getMessage()]);
         }
     }
+
+    public function changePassword()
+    {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+    
+        $data = json_decode(file_get_contents("php://input"), true);
+    
+        error_log("JSON-запит отримано: " . print_r($data, true));
+    
+        if (!isset($data['userId']) || !isset($data['oldPassword']) || !isset($data['newPassword'])) {
+            echo json_encode(["error" => "Всі поля обов'язкові"]);
+            error_log("Відсутні дані у JSON-запиті!");
+            return;
+        }
+    
+        $userId = intval($data['userId']);
+        $oldPassword = trim($data['oldPassword']);
+        $newPassword = trim($data['newPassword']);
+    
+        try {
+            $stmt = $this->model->getDB()->prepare("SELECT password FROM users WHERE id = :id");
+            $stmt->execute([':id' => $userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            if (!$user) {
+                echo json_encode(["error" => "Користувача не знайдено"]);
+                return;
+            }
+    
+            if (!password_verify($oldPassword, $user['password'])) {
+                echo json_encode(["error" => "Неправильний старий пароль"]);
+                return;
+            }
+    
+            $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+    
+            $updateStmt = $this->model->getDB()->prepare("UPDATE users SET password = :password WHERE id = :id");
+            $updateStmt->execute([':password' => $hashedPassword, ':id' => $userId]);
+    
+            echo json_encode(["success" => true]);
+        } catch (PDOException $e) {
+            echo json_encode(["error" => "Помилка сервера: " . $e->getMessage()]);
+        }
+    }
 }

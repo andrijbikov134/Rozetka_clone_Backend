@@ -33,6 +33,7 @@ return [
         'registeruser' => 'UsersController@registerUser' ,
         'getuserbyid' => 'UsersController@getUserById',
         'updateprofile' => 'UsersController@updateProfile',
+        'change-password' => 'UsersController@changePassword',
         
         'getcategoriessub' => 'CategoriesSubController@getCategoriesSub' ,
         'getcategorysubtitlebyid' => 'CategoriesSubController@getCategorySubTitleById' ,
