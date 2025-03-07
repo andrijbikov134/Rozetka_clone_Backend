@@ -23,7 +23,24 @@ class FiltersController
 
     public function getAllSizes()
     {
-      $sql = "SELECT * FROM sizes WHERE title_key = 'clothes'";
+      $input = json_decode(file_get_contents('php://input'), true);
+      // file_put_contents('D:/log.txt', print_r($input,true), FILE_APPEND);
+      $sql = "SELECT * FROM sizes WHERE id in (SELECT sizeid FROM productidsizeid WHERE productid in (";
+      
+      $sql_sizes = "";
+      for ($i=0; $i < count($input); ++$i)
+      { 
+          if($i == count($input)-1)
+          {
+              $sql_sizes .= $input[$i]['id'] . ")";
+          }
+          else
+          {
+              $sql_sizes .= $input[$i]['id'] . ", ";
+          }
+      }
+      $sql .= $sql_sizes . " GROUP BY sizeid)";
+      error_log($sql);
       $sth = $this->model->getDB()->prepare($sql); 
       
       $sth->execute([ 

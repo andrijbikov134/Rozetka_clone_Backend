@@ -22,4 +22,19 @@ class SizesController
 
       print_r(json_encode($item)); 
     }
+
+    public function getSizesByCategorySub(string $categorysub)
+    {
+      
+      $sql = "SELECT * FROM sizes WHERE title_key = :title_key;";
+      $sth = $this->model->getDB()->prepare($sql); 
+      
+      $sth->execute([ 
+          ':title_key' => $categorysub,    
+      ]);
+
+      $item = $sth->fetchAll();
+
+      print_r(json_encode($item)); 
+    }
 }

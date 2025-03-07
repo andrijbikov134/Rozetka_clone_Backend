@@ -70,11 +70,10 @@ class ProductsController
         $categorySub = $_POST['categorySub'];
         $categorySubSub = $_POST['categorySubSub'];
         $oldImgPath = $_POST['oldImgPath'];
-
-        error_log(print_r($_POST, true) . PHP_EOL);
-        error_log(print_r($$_FILES['file'], true) . PHP_EOL);
-
-
+        $price_with_discount = $_POST['price_with_discount'];
+        $new_product = $_POST['new_product'];
+        $new_product == 'true' ? $new_product = true : $new_product = false;
+       
         if(isset($_FILES['file']))
         {
             $file = $_FILES['file'];
@@ -121,8 +120,7 @@ class ProductsController
         {
             $filename = $oldImgPath;
         }
-
-
+       
 
 
         // Видалити картинку
@@ -140,7 +138,7 @@ class ProductsController
         $categorysubsub_id = $this->getCategorySubSubIdByTitle($category, $categorySubSub);
         if($id == 'null')
         {
-            $sql = "INSERT INTO products (id, title, color_id, brand_id, price, material_id, country_product_id, part_number, category_id, category_sub_id, category_sub_sub_id, pictures_path) VALUES (:id, :title, :color_id, :brand_id, :price, :material_id, :country_product_id, :part_number, :category_id, :category_sub_id, :category_sub_sub_id, :pictures_path);";
+            $sql = "INSERT INTO products (id, title, color_id, brand_id, price, price_with_discount, material_id, country_product_id, part_number, category_id, category_sub_id, category_sub_sub_id, pictures_path, new_product) VALUES (:id, :title, :color_id, :brand_id, :price, :price_with_discount, :material_id, :country_product_id, :part_number, :category_id, :category_sub_id, :category_sub_sub_id, :pictures_path, :new_product);";
             $sth = $this->model->getDB()->prepare($sql);
     
             $created = $sth->execute([ 
@@ -149,6 +147,7 @@ class ProductsController
                 ':color_id' => $color_id,
                 ':brand_id' => $brand_id,
                 ':price' => $price,
+                ':price_with_discount' => $price_with_discount == "null" ? NULL : $price_with_discount,
                 ':material_id' => $material_id,
                 ':country_product_id' => $country_product_id,
                 ':part_number' => $part_number,
@@ -156,6 +155,7 @@ class ProductsController
                 ':category_sub_id' => $categorysub_id,
                 ':category_sub_sub_id' => $categorysubsub_id,
                 ':pictures_path' => $filename, 
+                ':new_product' => $new_product,
 
             ]);
 
@@ -181,7 +181,7 @@ class ProductsController
         else
         {
             
-            $sql = "UPDATE products set title = :title, color_id = :color_id, brand_id = :brand_id, price = :price, material_id = :material_id, country_product_id = :country_product_id, part_number = :part_number, category_id = :category_id, category_sub_id = :category_sub_id, category_sub_sub_id = :category_sub_sub_id, pictures_path = :pictures_path WHERE id = :id;";
+            $sql = "UPDATE products set title = :title, new_product = :new_product, color_id = :color_id, brand_id = :brand_id, price = :price, price_with_discount = :price_with_discount, material_id = :material_id, country_product_id = :country_product_id, part_number = :part_number, category_id = :category_id, category_sub_id = :category_sub_id, category_sub_sub_id = :category_sub_sub_id, pictures_path = :pictures_path WHERE id = :id;";
             $sth = $this->model->getDB()->prepare($sql);
             error_log("NEW FILE NAME" . $filename);
             $created = $sth->execute([ 
@@ -190,6 +190,7 @@ class ProductsController
                 ':color_id' => $color_id,
                 ':brand_id' => $brand_id,
                 ':price' => $price,
+                ':price_with_discount' => $price_with_discount == "null" ? NULL : $price_with_discount,
                 ':material_id' => $material_id,
                 ':country_product_id' => $country_product_id,
                 ':part_number' => $part_number,
@@ -197,6 +198,7 @@ class ProductsController
                 ':category_sub_id' => $categorysub_id,
                 ':category_sub_sub_id' => $categorysubsub_id,
                 ':pictures_path' => $filename, 
+                ':new_product' => $new_product,
 
             ]);
 
@@ -281,27 +283,26 @@ class ProductsController
         $id = $input['id'];
         $imgPath = $input['imgPath'];
         
-        // Настройте переменные
-        $projectId = 'arctic-marking-450608-f8'; // Ваш Project ID
-        $bucketName = 'clothes_store'; // Название вашего бакета
-        // Путь к вашему файлу с учетными данными JSON
-        $path_env = dirname(__DIR__,2) . '/arctic-marking-450608-f8-6f543f6e3329.json';
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $path_env);
-        // Создаём объект StorageClient
-        $storage = new StorageClient([
-            'projectId' => $projectId,
-        ]);
-        // Получаем объект бакета
-        $bucket = $storage->bucket($bucketName);
-
-        // Видалити картинку
-        $object = $bucket->object($imgPath);
-        $object->delete();
+        if($imgPath != '')
+        {
+            // Настройте переменные
+            $projectId = 'arctic-marking-450608-f8'; // Ваш Project ID
+            $bucketName = 'clothes_store'; // Название вашего бакета
+            // Путь к вашему файлу с учетными данными JSON
+            $path_env = dirname(__DIR__,2) . '/arctic-marking-450608-f8-6f543f6e3329.json';
+            putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $path_env);
+            // Создаём объект StorageClient
+            $storage = new StorageClient([
+                'projectId' => $projectId,
+            ]);
+            // Получаем объект бакета
+            $bucket = $storage->bucket($bucketName);
+            
+            // Видалити картинку
+            $object = $bucket->object($imgPath);
+            $object->delete();
+        }
         
-
-
-
-
         $sql = "SELECT * FROM orderidproductid WHERE product_id = :id;";
         $sth = $this->model->getDB()->prepare($sql);
 
@@ -327,16 +328,19 @@ class ProductsController
             $created = $sth->execute([ 
                 ':id' => $id,
                 ]);
+            error_log('OK');
+
             print_r(json_encode(["error" => "OK"]));
         }
         else
         {
+            error_log('Існують замовлення з обраним товаром! Товар можна тільки приховати!');
             print_r(json_encode(["error" => "Існують замовлення з обраним товаром! Товар можна тільки приховати!"]));
         }
 
     }
 
-    public function getCategories(string $category, string $categorysub)
+    public function getCategoriesSubSubByCategorySubAndCategory(string $category, string $categorysub)
     {
         $items = [];
 
@@ -357,14 +361,76 @@ class ProductsController
         $items = [];
         $input_title = strtolower($input_title);
 
-        $sql = "SELECT * FROM products WHERE LOWER(title) LIKE :input_title;";
-        $sth = $this->model->getDB()->prepare($sql); 
-        
-        $sth->execute([ 
-            ':input_title' => '%' .  $input_title . "%"    
-        ]);
+        $sql = "SELECT * FROM products WHERE LOWER(title) LIKE :input_title ";
 
+        $params = [
+            ':input_title' => '%' .  $input_title . "%"
+        ];
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if(count($input['brands']) != 0)
+        {
+            $sql_brands = "AND brand_id in (";
+            for ($i=0; $i < count($input['brands']); ++$i)
+            { 
+                if($i == count($input['brands'])-1)
+                {
+                    $sql_brands .= $input['brands'][$i] . ")";
+                }
+                else
+                {
+                    $sql_brands .= $input['brands'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_brands;
+        }
+        
+        $priceRange = $input['priceRange'];
+        $sql .= " AND price BETWEEN " . $priceRange['min']  . " AND " . $priceRange['max'];
+
+        if(count($input['sizes']) != 0)
+        {
+            $sql_sizes = " AND id IN (SELECT productid FROM productidsizeid WHERE sizeid in (";
+            for ($i=0; $i < count($input['sizes']); ++$i)
+            { 
+                if($i == count($input['sizes'])-1)
+                {
+                    $sql_sizes .= $input['sizes'][$i] . "))";
+                }
+                else
+                {
+                    $sql_sizes .= $input['sizes'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_sizes;
+        }
+        if(count($input['countries']) != 0)
+        {
+            $sql_countries = " AND country_product_id IN (";
+            for ($i=0; $i < count($input['countries']); ++$i)
+            { 
+                if($i == count($input['countries'])-1)
+                {
+                    $sql_countries .= $input['countries'][$i] . ")";
+                }
+                else
+                {
+                    $sql_countries .= $input['countries'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_countries;
+            error_log($sql);
+        }
+        if($input['sort'] != 'rating')
+        {
+            $sql .= ' ORDER BY price ' . $input['sort'];
+        }
+    
+
+        $sth = $this->model->getDB()->prepare($sql); 
+        $sth->execute($params);
         $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+
         print_r(json_encode($items));  
     }
 
@@ -467,7 +533,152 @@ class ProductsController
         print_r(json_encode($items));
     }
 
+    public function getProductsSale()
+    {
+        $items = [];
+        $sql = "SELECT * FROM products WHERE price_with_discount IS NOT NULL ";
+
+        $params = [
+        ];
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if(count($input['brands']) != 0)
+        {
+            $sql_brands = "AND brand_id in (";
+            for ($i=0; $i < count($input['brands']); ++$i)
+            { 
+                if($i == count($input['brands'])-1)
+                {
+                    $sql_brands .= $input['brands'][$i] . ")";
+                }
+                else
+                {
+                    $sql_brands .= $input['brands'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_brands;
+        }
+        
+        $priceRange = $input['priceRange'];
+        $sql .= " AND price BETWEEN " . $priceRange['min']  . " AND " . $priceRange['max'];
+
+        if(count($input['sizes']) != 0)
+        {
+            $sql_sizes = " AND id IN (SELECT productid FROM productidsizeid WHERE sizeid in (";
+            for ($i=0; $i < count($input['sizes']); ++$i)
+            { 
+                if($i == count($input['sizes'])-1)
+                {
+                    $sql_sizes .= $input['sizes'][$i] . "))";
+                }
+                else
+                {
+                    $sql_sizes .= $input['sizes'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_sizes;
+        }
+        if(count($input['countries']) != 0)
+        {
+            $sql_countries = " AND country_product_id IN (";
+            for ($i=0; $i < count($input['countries']); ++$i)
+            { 
+                if($i == count($input['countries'])-1)
+                {
+                    $sql_countries .= $input['countries'][$i] . ")";
+                }
+                else
+                {
+                    $sql_countries .= $input['countries'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_countries;
+            error_log($sql);
+        }
+        if($input['sort'] != 'rating')
+        {
+            $sql .= ' ORDER BY price ' . $input['sort'];
+        }
     
+        $sth = $this->model->getDB()->prepare($sql);
+        $sth->execute($params);
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+        print_r(json_encode($items));
+    }
+    public function getProductsNew()
+    {
+        $items = [];
+        $sql = "SELECT * FROM products WHERE new_product = 1 ";
+
+        $params = [
+        ];
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if(count($input['brands']) != 0)
+        {
+            $sql_brands = "AND brand_id in (";
+            for ($i=0; $i < count($input['brands']); ++$i)
+            { 
+                if($i == count($input['brands'])-1)
+                {
+                    $sql_brands .= $input['brands'][$i] . ")";
+                }
+                else
+                {
+                    $sql_brands .= $input['brands'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_brands;
+        }
+        
+        $priceRange = $input['priceRange'];
+        $sql .= " AND price BETWEEN " . $priceRange['min']  . " AND " . $priceRange['max'];
+
+        if(count($input['sizes']) != 0)
+        {
+            $sql_sizes = " AND id IN (SELECT productid FROM productidsizeid WHERE sizeid in (";
+            for ($i=0; $i < count($input['sizes']); ++$i)
+            { 
+                if($i == count($input['sizes'])-1)
+                {
+                    $sql_sizes .= $input['sizes'][$i] . "))";
+                }
+                else
+                {
+                    $sql_sizes .= $input['sizes'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_sizes;
+        }
+        if(count($input['countries']) != 0)
+        {
+            $sql_countries = " AND country_product_id IN (";
+            for ($i=0; $i < count($input['countries']); ++$i)
+            { 
+                if($i == count($input['countries'])-1)
+                {
+                    $sql_countries .= $input['countries'][$i] . ")";
+                }
+                else
+                {
+                    $sql_countries .= $input['countries'][$i] . ", ";
+                }
+            }
+            $sql .= $sql_countries;
+            error_log($sql);
+        }
+        if($input['sort'] != 'rating')
+        {
+            $sql .= ' ORDER BY price ' . $input['sort'];
+        }
+    
+        $sth = $this->model->getDB()->prepare($sql);
+        $sth->execute($params);
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+        print_r(json_encode($items));
+    }
 
     private function getBrandProductById(string $id)
     {
@@ -550,6 +761,33 @@ class ProductsController
         print_r(json_encode($items)); 
     }
 
+    public function getSaleProducts()
+    {
+        $sql = "SELECT * FROM products WHERE price_with_discount IS NOT NULL";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([    
+        ]);
+
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+        
+        print_r(json_encode($items));
+    }
+
+    public function getNewProducts()
+    {
+        $sql = "SELECT * FROM products WHERE new_product = 1";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([    
+        ]);
+
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+        
+        print_r(json_encode($items));
+    }
+
+    
 
     public function getProductById(string $id)
     {
@@ -566,11 +804,6 @@ class ProductsController
         $items = $sth->fetchAll(PDO::FETCH_ASSOC);
         print_r(json_encode($items));  
     }
-  
-
-    public function getPopularProducts()
-    {
-        $data = $this->model->getProductsList();
-        print_r(json_encode($data));
-    }
+    
+    
 }

@@ -139,7 +139,7 @@ class OrdersController
               ORDER BY o.date_order DESC";
 
       $sth = $this->model->getDB()->prepare($sql);
-      error_log("Викликається getOrdersByUserId() з user_id: " . $user_id);
+     
       $sth->execute([":user_id" => $user_id]);
       $orders = $sth->fetchAll(PDO::FETCH_ASSOC);
 

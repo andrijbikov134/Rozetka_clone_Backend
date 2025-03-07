@@ -34,7 +34,7 @@ class OrderIdProductIdController
 
     public function getPopularProducts()
     {
-      $sql = "SELECT product_id, SUM(quantity) as sumQuantity FROM orderidproductid GROUP BY product_id ORDER BY sumQuantity DESC LIMIT 20";
+      $sql = "SELECT product_id, SUM(quantity) as sumQuantity FROM orderidproductid GROUP BY product_id ORDER BY sumQuantity DESC LIMIT 12";
       $sth = $this->model->getDB()->prepare($sql); 
       
       $sth->execute([    

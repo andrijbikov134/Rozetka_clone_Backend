@@ -3,13 +3,18 @@
 return [
     'routes' => [
         'getpopularproducts' => 'OrderIdProductIdController@getPopularProducts',     // index.php?action=index
-        'getcategories' => 'ProductsController@getCategories', 
+        'getcategoriessubsubbycategorysubandcategory' => 'ProductsController@getCategoriesSubSubByCategorySubAndCategory', 
           // index.php?action=delete&id=10
         'getproductsfilteredbytitle' => 'ProductsController@getProductsFilteredByTitle',   // index.php?action=delete&id=10
         'getproductbyid' => 'ProductsController@getProductById',
         'getproductswithoutfilters' => 'ProductsController@getProductsWithoutFilters',  
         'getproductswithfilters' => 'ProductsController@getProductsWithFilters',
         'getproductcharacteristics' => 'ProductsController@getProductCharacteristics',
+        'getsaleproducts' => 'ProductsController@getSaleProducts',
+        'getnewproducts' => 'ProductsController@getNewProducts',
+        'getproductssale' => 'ProductsController@getProductsSale',
+        'getproductsnew' => 'ProductsController@getProductsNew',
+
         'addorupdateproductindb' => 'ProductsController@addOrUpdateProductInDB',
         'deleteproductfromdb' => 'ProductsController@deleteProductFromDB',
         'deleteimgfromgooglebucket' => 'ProductsController@deleteImgFromGoogleBucket',
@@ -24,6 +29,7 @@ return [
         'getproductsizes' => 'ProductIdSizeIdController@getProductSizes',
         
         'getsizebyid' => 'SizesController@getSizeById',
+        'getsizesbycategorysub' => 'SizesController@getSizesByCategorySub',
         
         'getcolorbyid' => 'ColorsController@getColorById',
         
@@ -40,6 +46,7 @@ return [
         
         'getcategorysubsubtitlebyid' => 'CategoriesSubSubController@getCategorySubSubTitleById' ,
         'getcategorysubsubtitleua' => 'CategoriesSubSubController@getCategorySubSubTitleUa',
+        'getcategorysubsubbycategorytitle' => 'CategoriesSubSubController@getCategorySubSubByCategoryTitle',
 
         'getcategorytitlebyid' => 'CategoriesController@getCategoryTitleById' ,
 

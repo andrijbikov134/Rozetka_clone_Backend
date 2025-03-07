@@ -38,7 +38,19 @@ if (isset($routes[$action]))
 
             $controller->$method($product_id, $comment, $advantages, $disadvantages, $grade, $datereview, $user_id);
         }
-        else if($action == "getcategories")
+        else if($action == 'getcategorysubsubbycategorytitle')
+        {
+            $category = $_GET['category'];
+            
+            $controller->$method($category);
+        }
+        else if($action == 'getsizesbycategorysub')
+        {
+            $categorysub = $_GET['categorysub'];
+            
+            $controller->$method($categorysub);
+        }
+        else if($action == "getcategoriessubsubbycategorysubandcategory")
         {
             $category = $_GET['category'];
             $categorysub = $_GET['categorysub'];

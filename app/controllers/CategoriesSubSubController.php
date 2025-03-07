@@ -22,6 +22,20 @@ class CategoriesSubSubController
       print_r(json_encode($item[0])); 
     }
 
+    public function getCategorySubSubByCategoryTitle(string $category)
+    {      
+      $sql = "SELECT * FROM categorysubsub WHERE title LIKE :title ORDER BY title_ua ASC";
+      $sth = $this->model->getDB()->prepare($sql); 
+      
+      $sth->execute([
+        ':title' => '%\_' . $category . "%",
+      ]);
+
+      $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+      print_r(json_encode($items)); 
+    }
+
     public function getCategorySubSubTitleUa(string $categorysubsub)
     {
         $sql = "SELECT title_ua FROM categorysubsub WHERE LOWER(title) = :categorysubsub;";
