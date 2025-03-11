@@ -85,7 +85,7 @@ class OrdersController
 
       ////////////////////////////////////////////////////////////
       // Вставити замовленняд до таблиці orders
-      $sql = "INSERT INTO orders (id, user_id, date_order, delivery_type_id, payment_type_id, recipient_id, delivery_index, delivery_full_address) VALUES (:id, :user_id, :date_order, :delivery_type_id, :payment_type_id, :recipient_id, :delivery_index, :delivery_full_address)";
+      $sql = "INSERT INTO orders (id, user_id, date_order, delivery_type_id, payment_type_id, recipient_id, delivery_index, delivery_full_address, status_order) VALUES (:id, :user_id, :date_order, :delivery_type_id, :payment_type_id, :recipient_id, :delivery_index, :delivery_full_address, inprocessing)";
       $user_id = $input['user'] == 0 ? NULL : $input['user']['id'];
       $sth = $this->model->getDB()->prepare($sql);
       $now = new DateTime();
@@ -123,63 +123,94 @@ class OrdersController
       print_r(json_encode($order_id)); 
     }
 
+    public function updateOrder()
+    {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $order_id = $input['order_id'];
+        $status_order = $input['status_order'];
+        error_log(print_r($input,true));
+        $sql = "UPDATE orders set status_order = :status_order WHERE id = :order_id;";
+        $sth = $this->model->getDB()->prepare($sql);
+        $created = $sth->execute([ 
+            ':order_id' => intval($order_id),
+            ':status_order' => $status_order,
+        ]); 
+        print_r('');
+        
+    }
+
     public function getOrdersByUserId()
     {
-      header('Content-Type: application/json');
 
       $input = json_decode(file_get_contents('php://input'), true);
-
       $user_id = $input['user_id']; 
 
-      $sql = "SELECT o.id AS order_id, o.date_order, p.title AS product_name, op.quantity, (op.quantity * op.price) AS total_price
-              FROM orders o
-              JOIN orderidproductid op ON o.id = op.order_id
-              JOIN products p ON op.product_id = p.id
-              WHERE o.user_id = :user_id
-              ORDER BY o.date_order DESC";
+      $sql = "SELECT o.id AS order_id, o.status_order as status_order, 
+                o.date_order, 
+                GROUP_CONCAT(
+                    CONCAT(
+                        '{\"title\":\"', p.title, 
+                        '\", \"quantity\":', op.quantity, 
+                        ', \"price\":', op.price, '}'
+                    ) 
+                    SEPARATOR ','
+                ) AS products, 
+                SUM(op.quantity) AS totalQuantity, 
+                SUM(op.quantity * op.price) AS totalPrice
+          FROM orders o
+          JOIN orderidproductid op ON o.id = op.order_id
+          JOIN products p ON op.product_id = p.id
+          WHERE o.user_id = :user_id
+          GROUP BY o.id
+          ORDER BY o.date_order DESC";
 
       $sth = $this->model->getDB()->prepare($sql);
-     
       $sth->execute([":user_id" => $user_id]);
       $orders = $sth->fetchAll(PDO::FETCH_ASSOC);
 
+      
+  // Оновлюємо структуру, щоб products було масивом JSON
+      foreach ($orders as &$order) {
+          $order['products'] = "[" . $order['products'] . "]";
+      }
+      // Відправляємо як JSON
       echo json_encode(["orders" => $orders]);
     }
 
 
     public function getOrders()
-  {
+    {
     header('Content-Type: application/json');
-
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-
-    error_log("getOrders: Виконання методу");
-
-    if (!isset($_SESSION['user_id'])) {
-        error_log("getOrders: Користувач не авторизований");
-        echo json_encode(["error" => "Користувач не авторизований"]);
-        exit();
-    }
-
-    $userId = $_SESSION['user_id'];
-    error_log("getOrders: user_id = " . $userId);
 
     try
     {
-      $sql = "SELECT o.id AS order_id, o.date_order, o.delivery_type_id, 
-                       o.payment_type_id, o.recipient_id, o.delivery_index, 
-                       o.delivery_full_address
-                FROM orders o
-                WHERE o.user_id = :user_id
-                ORDER BY o.date_order DESC";
+        $sql = "SELECT o.id AS order_id, o.status_order as status_order,
+        CONCAT(r.first_name, \" \", r.last_name) AS full_name, r.phone as phone, 
+        o.date_order, 
+        GROUP_CONCAT(
+            CONCAT(
+                '{\"title\":\"', p.title, 
+                '\", \"quantity\":', op.quantity, 
+                ', \"price\":', op.price, '}'
+            ) 
+            SEPARATOR ','
+        ) AS products, 
+        SUM(op.quantity) AS totalQuantity, 
+        SUM(op.quantity * op.price) AS totalPrice
+        FROM orders o
+        JOIN orderidproductid op ON o.id = op.order_id
+        JOIN products p ON op.product_id = p.id
+        JOIN recipients r ON o.recipient_id = r.id
+        GROUP BY o.id
+        ORDER BY o.date_order DESC";
 
       $sth = $this->model->getDB()->prepare($sql);
-      $sth->execute([":user_id" => $userId]);
+      $sth->execute([]);
       $orders = $sth->fetchAll(PDO::FETCH_ASSOC);
-
-      error_log("getOrders: Отримані дані: " . json_encode($orders));
+    
+      foreach ($orders as &$order) {
+        $order['products'] = "[" . $order['products'] . "]";
+    }
 
       if (!$orders) 
       {

@@ -40,7 +40,6 @@ class FiltersController
           }
       }
       $sql .= $sql_sizes . " GROUP BY sizeid)";
-      error_log($sql);
       $sth = $this->model->getDB()->prepare($sql); 
       
       $sth->execute([ 

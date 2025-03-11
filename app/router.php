@@ -63,7 +63,7 @@ if (isset($routes[$action]))
             
             $controller->$method($input_title);
         }
-        else if($action == "getproductbyid" || $action == "getreviewsproductbyid" || $action == "getsizebyid" || $action == "getcolorbyid" || $action == 'getuserbyid' || $action == 'getcategorysubtitlebyid' || $action == 'getcategorytitlebyid' || $action == 'getcategorysubsubtitlebyid')
+        else if($action == "getproductbyid" || $action == "getreviewsproductbyid" || $action == "getsizebyid" || $action == "getcolorbyid" || $action == 'getuserbyid' || $action == 'getcategorysubtitlebyid' || $action == 'getcategorytitlebyid' || $action == 'getcategorysubsubtitlebyid' || $action == 'changeishidden')
         {
             $id = $_GET['id'];
             $controller->$method($id);

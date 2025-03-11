@@ -19,8 +19,9 @@ return [
         'deleteproductfromdb' => 'ProductsController@deleteProductFromDB',
         'deleteimgfromgooglebucket' => 'ProductsController@deleteImgFromGoogleBucket',
 
-        
-        
+        'changeishidden' => 'ProductsController@changeIsHidden',
+        'gethiddenproducts' => 'ProductsController@getHiddenProducts',
+
         
         // index.php?action=delete&id=10
         'createreview' => 'ReviewsController@putReviewDB',
@@ -52,8 +53,15 @@ return [
 
 
         'getissaleproductsbyuser' => 'OrderIdProductIdController@getIsSaleProductsByUser' ,
-        'getordersbyuserid' => 'OrdersController@getOrdersByUserId',
+        'gettopproductsquantity' => 'OrderIdProductIdController@getTopProductsQuantity',
+        'getsalesbymonth' => 'OrderIdProductIdController@getSalesByMonth',
+        'getsalesbybrand' => 'OrderIdProductIdController@getSalesByBrand',
 
+        'getordersbyuserid' => 'OrdersController@getOrdersByUserId',
+        'getorders' => 'OrdersController@getOrders',
+        'updateorder' => 'OrdersController@updateOrder',
+
+        
 
         'getallbrands' => 'FiltersController@getAllBrands', 
         'getallsizes' => 'FiltersController@getAllSizes',

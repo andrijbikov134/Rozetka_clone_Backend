@@ -361,7 +361,7 @@ class ProductsController
         $items = [];
         $input_title = strtolower($input_title);
 
-        $sql = "SELECT * FROM products WHERE LOWER(title) LIKE :input_title ";
+        $sql = "SELECT * FROM products WHERE is_hidden = 0 AND LOWER(title) LIKE :input_title ";
 
         $params = [
             ':input_title' => '%' .  $input_title . "%"
@@ -437,7 +437,7 @@ class ProductsController
     public function getProductsWithoutFilters(string $category, string $categorysub, string $categorysubsub)
     {
         $items = [];
-        $sql = "SELECT * FROM products WHERE category_id = (SELECT id FROM category WHERE LOWER(title) =  :category)
+        $sql = "SELECT * FROM products WHERE is_hidden = 0 AND category_id = (SELECT id FROM category WHERE LOWER(title) =  :category)
         AND category_sub_id = (SELECT id FROM categorysub WHERE LOWER(title) =  :category_sub)
         AND category_sub_sub_id = (SELECT id FROM categorysubsub WHERE LOWER(title) =  :category_sub_sub);";
         $sth = $this->model->getDB()->prepare($sql); 
@@ -455,7 +455,7 @@ class ProductsController
     public function getProductsWithFilters(string $category, string $categorysub, string $categorysubsub, ?string $price = null, ?string $sort = null)
     {
         $items = [];
-        $sql = "SELECT * FROM products WHERE category_id = (SELECT id FROM category WHERE LOWER(title) =  :category)
+        $sql = "SELECT * FROM products WHERE is_hidden = 0 AND category_id = (SELECT id FROM category WHERE LOWER(title) =  :category)
         AND category_sub_id = (SELECT id FROM categorysub WHERE LOWER(title) =  :category_sub)
         AND category_sub_sub_id = (SELECT id FROM categorysubsub WHERE LOWER(title) =  :category_sub_sub)";
 
@@ -533,10 +533,23 @@ class ProductsController
         print_r(json_encode($items));
     }
 
+    public function getHiddenProducts()
+    {
+        $items = [];
+        $sql = "SELECT * FROM products WHERE is_hidden = 1";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+        ]);
+
+        $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+        print_r(json_encode($items));
+    }
+
     public function getProductsSale()
     {
         $items = [];
-        $sql = "SELECT * FROM products WHERE price_with_discount IS NOT NULL ";
+        $sql = "SELECT * FROM products WHERE is_hidden = 0 AND price_with_discount IS NOT NULL ";
 
         $params = [
         ];
@@ -609,7 +622,7 @@ class ProductsController
     public function getProductsNew()
     {
         $items = [];
-        $sql = "SELECT * FROM products WHERE new_product = 1 ";
+        $sql = "SELECT * FROM products WHERE is_hidden = 0 AND new_product = 1 ";
 
         $params = [
         ];
@@ -763,7 +776,7 @@ class ProductsController
 
     public function getSaleProducts()
     {
-        $sql = "SELECT * FROM products WHERE price_with_discount IS NOT NULL";
+        $sql = "SELECT * FROM products WHERE is_hidden = 0 AND price_with_discount IS NOT NULL";
         $sth = $this->model->getDB()->prepare($sql); 
         
         $sth->execute([    
@@ -776,7 +789,7 @@ class ProductsController
 
     public function getNewProducts()
     {
-        $sql = "SELECT * FROM products WHERE new_product = 1";
+        $sql = "SELECT * FROM products WHERE is_hidden = 0 AND new_product = 1";
         $sth = $this->model->getDB()->prepare($sql); 
         
         $sth->execute([    
@@ -788,7 +801,6 @@ class ProductsController
     }
 
     
-
     public function getProductById(string $id)
     {
         $items = [];
@@ -805,5 +817,17 @@ class ProductsController
         print_r(json_encode($items));  
     }
     
+    public function changeIsHidden(string $id)
+    {
+        $sql = "UPDATE products SET is_hidden = NOT is_hidden WHERE id = :id;";
+        $sth = $this->model->getDB()->prepare($sql); 
+        
+        $sth->execute([ 
+            ':id' => intval($id)
+        ]);
+
+        // $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+        // print_r(json_encode($items)); 
+    }
     
 }
