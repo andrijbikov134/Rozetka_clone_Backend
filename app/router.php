@@ -3,7 +3,6 @@
 // $log = date('Y-m-d H:i:s') . 'class name' . $class_name . '  ' . $method;
 // file_put_contents('D:/log.txt', $log . PHP_EOL, FILE_APPEND);
 
-$action = 'index';
 if (isset($_GET['action']))
 {
     $action = strtolower($_GET['action']);

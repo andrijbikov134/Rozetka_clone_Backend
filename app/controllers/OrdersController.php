@@ -85,7 +85,7 @@ class OrdersController
 
       ////////////////////////////////////////////////////////////
       // Вставити замовленняд до таблиці orders
-      $sql = "INSERT INTO orders (id, user_id, date_order, delivery_type_id, payment_type_id, recipient_id, delivery_index, delivery_full_address, status_order) VALUES (:id, :user_id, :date_order, :delivery_type_id, :payment_type_id, :recipient_id, :delivery_index, :delivery_full_address, inprocessing)";
+      $sql = "INSERT INTO orders (id, user_id, date_order, delivery_type_id, payment_type_id, recipient_id, delivery_index, delivery_full_address, status_order) VALUES (:id, :user_id, :date_order, :delivery_type_id, :payment_type_id, :recipient_id, :delivery_index, :delivery_full_address, 'inprocessing')";
       $user_id = $input['user'] == 0 ? NULL : $input['user']['id'];
       $sth = $this->model->getDB()->prepare($sql);
       $now = new DateTime();
