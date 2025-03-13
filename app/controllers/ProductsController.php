@@ -50,34 +50,29 @@ class ProductsController
     
     public function addOrUpdateProductInDB()
     {
-
-        require dirname(__DIR__,2) . '/vendor/autoload.php'; // Підключити автозавантажувач Composer для відправки картинки на Google Cloud
-    
-        $input = json_decode(file_get_contents("php://input"), true);
-        
-        // error_log(print_r($_POST,true));
-        // error_log(print_r($_FILES,true));
-
-
-        $id = $_POST['id'];
-        $title = $_POST['title'];
-        $color_id = $_POST['color_id'];
-        $brand_id = $_POST['brand_id'];
-        $price = $_POST['price'];
-        $material_id = $_POST['material_id'];
-        $country_product_id = $_POST['country_product_id'];
-        $part_number = $_POST['part_number'];
-        $category = $_POST['category'];
-        $categorySub = $_POST['categorySub'];
-        $categorySubSub = $_POST['categorySubSub'];
-        $oldImgPath = $_POST['oldImgPath'];
-        $price_with_discount = $_POST['price_with_discount'];
-        $new_product = $_POST['new_product'];
-        $new_product == 'true' ? $new_product = true : $new_product = false;
-       
-        if(isset($_FILES['file']))
+        try
         {
-            try
+            require dirname(__DIR__,2) . '/vendor/autoload.php'; // Підключити автозавантажувач Composer для відправки картинки на Google Cloud
+        
+            $input = json_decode(file_get_contents("php://input"), true);
+            
+            $id = $_POST['id'];
+            $title = $_POST['title'];
+            $color_id = $_POST['color_id'];
+            $brand_id = $_POST['brand_id'];
+            $price = $_POST['price'];
+            $material_id = $_POST['material_id'];
+            $country_product_id = $_POST['country_product_id'];
+            $part_number = $_POST['part_number'];
+            $category = $_POST['category'];
+            $categorySub = $_POST['categorySub'];
+            $categorySubSub = $_POST['categorySubSub'];
+            $oldImgPath = $_POST['oldImgPath'];
+            $price_with_discount = $_POST['price_with_discount'];
+            $new_product = $_POST['new_product'];
+            $new_product == 'true' ? $new_product = true : $new_product = false;
+        
+            if(isset($_FILES['file']))
             {
                 $file = $_FILES['file'];
                 // Настройте переменные
@@ -117,142 +112,139 @@ class ProductsController
                     // Видалити картинку
                     $object = $bucket->object($oldImgPath);
                     $object->delete();
-                }
+                }   
             }
-            catch(Exception $e)
+            else
             {
-                print_r(json_encode(["error" => "Помилка сервера: " . $e->getMessage()]));
+                $filename = $oldImgPath;
             }
-            
-        }
-        else
-        {
-            $filename = $oldImgPath;
-        }
-       
+        
 
 
-        // Видалити картинку
-        // $object = $bucket->object('img/women/clothes/jackets/6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b.png');
-        // $object->delete();
+            // Видалити картинку
+            // $object = $bucket->object('img/women/clothes/jackets/6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b.png');
+            // $object->delete();
 
-        // Подивитися зміст backet
-        // $objects = $bucket->objects();
-        // error_log("!!!!!!!!!!!!" . PHP_EOL);
-        // foreach ($objects as $object) {
-        //     error_log($object->name());
-        // }
-        $category_id = $this->getCategoryIdByTitle($category);
-        $categorysub_id = $this->getCategorySubIdByTitle($categorySub);
-        $categorysubsub_id = $this->getCategorySubSubIdByTitle($category, $categorySubSub);
-        if($id == 'null')
-        {
-            $sql = "INSERT INTO products (id, title, color_id, brand_id, price, price_with_discount, material_id, country_product_id, part_number, category_id, category_sub_id, category_sub_sub_id, pictures_path, new_product) VALUES (:id, :title, :color_id, :brand_id, :price, :price_with_discount, :material_id, :country_product_id, :part_number, :category_id, :category_sub_id, :category_sub_sub_id, :pictures_path, :new_product);";
-            $sth = $this->model->getDB()->prepare($sql);
-    
-            $created = $sth->execute([ 
-                ':id' => NULL,
-                ':title' => $title,
-                ':color_id' => $color_id,
-                ':brand_id' => $brand_id,
-                ':price' => $price,
-                ':price_with_discount' => $price_with_discount == "null" ? NULL : $price_with_discount,
-                ':material_id' => $material_id,
-                ':country_product_id' => $country_product_id,
-                ':part_number' => $part_number,
-                ':category_id' => $category_id,
-                ':category_sub_id' => $categorysub_id,
-                ':category_sub_sub_id' => $categorysubsub_id,
-                ':pictures_path' => $filename, 
-                ':new_product' => $new_product,
-
-            ]);
-
-            $product_id = $this->model->getDB()->lastInsertId();
-
-            $sizes_json = $_POST['sizes'];
-            $sizes = [];
-            for ($i=0; $i < count($sizes_json); $i++) { 
-                $sizes[$i] = json_decode($sizes_json[$i], true);
-            }
-
-            for ($i=0; $i < count($sizes); ++$i) 
-            { 
-                $sql = "INSERT INTO productidsizeid (id, productid, sizeid) VALUES (:id, :product_id, :size_id);";
+            // Подивитися зміст backet
+            // $objects = $bucket->objects();
+            // error_log("!!!!!!!!!!!!" . PHP_EOL);
+            // foreach ($objects as $object) {
+            //     error_log($object->name());
+            // }
+            $category_id = $this->getCategoryIdByTitle($category);
+            $categorysub_id = $this->getCategorySubIdByTitle($categorySub);
+            $categorysubsub_id = $this->getCategorySubSubIdByTitle($category, $categorySubSub);
+            if($id == 'null')
+            {
+                $sql = "INSERT INTO products (id, title, color_id, brand_id, price, price_with_discount, material_id, country_product_id, part_number, category_id, category_sub_id, category_sub_sub_id, pictures_path, new_product, is_hidden) VALUES (:id, :title, :color_id, :brand_id, :price, :price_with_discount, :material_id, :country_product_id, :part_number, :category_id, :category_sub_id, :category_sub_sub_id, :pictures_path, :new_product, 0);";
                 $sth = $this->model->getDB()->prepare($sql);
+        
                 $created = $sth->execute([ 
                     ':id' => NULL,
-                    ':product_id' => $product_id,
-                    ':size_id' => $sizes[$i]['id'],    
+                    ':title' => $title,
+                    ':color_id' => $color_id,
+                    ':brand_id' => $brand_id,
+                    ':price' => $price,
+                    ':price_with_discount' => $price_with_discount == "null" ? NULL : $price_with_discount,
+                    ':material_id' => $material_id,
+                    ':country_product_id' => $country_product_id,
+                    ':part_number' => $part_number,
+                    ':category_id' => $category_id,
+                    ':category_sub_id' => $categorysub_id,
+                    ':category_sub_sub_id' => $categorysubsub_id,
+                    ':pictures_path' => $filename, 
+                    ':new_product' => $new_product,
                 ]);
-            }
-        }
-        else
-        {
-            
-            $sql = "UPDATE products set title = :title, new_product = :new_product, color_id = :color_id, brand_id = :brand_id, price = :price, price_with_discount = :price_with_discount, material_id = :material_id, country_product_id = :country_product_id, part_number = :part_number, category_id = :category_id, category_sub_id = :category_sub_id, category_sub_sub_id = :category_sub_sub_id, pictures_path = :pictures_path WHERE id = :id;";
-            $sth = $this->model->getDB()->prepare($sql);
-            error_log("NEW FILE NAME" . $filename);
-            $created = $sth->execute([ 
-                ':id' => $id,
-                ':title' => $title,
-                ':color_id' => $color_id,
-                ':brand_id' => $brand_id,
-                ':price' => $price,
-                ':price_with_discount' => $price_with_discount == "null" ? NULL : $price_with_discount,
-                ':material_id' => $material_id,
-                ':country_product_id' => $country_product_id,
-                ':part_number' => $part_number,
-                ':category_id' => $category_id,
-                ':category_sub_id' => $categorysub_id,
-                ':category_sub_sub_id' => $categorysubsub_id,
-                ':pictures_path' => $filename, 
-                ':new_product' => $new_product,
 
-            ]);
+                $product_id = $this->model->getDB()->lastInsertId();
 
-            $sizes_json = $_POST['sizes'];
-            $sizes = [];
-            for ($i=0; $i < count($sizes_json); $i++) { 
-                $sizes[$i] = json_decode($sizes_json[$i], true);
-            }
+                $sizes_json = $_POST['sizes'];
+                $sizes = [];
+                for ($i=0; $i < count($sizes_json); $i++) { 
+                    $sizes[$i] = json_decode($sizes_json[$i], true);
+                }
 
-            $sql = "SELECT * FROM productidsizeid WHERE productid = :product_id;";
-            $sth = $this->model->getDB()->prepare($sql);
-            $created = $sth->execute([ 
-                ':product_id' => $id,
-            ]);
-            $oldSizes = $sth->fetchAll();
-
-            for ($i=0; $i < count($sizes); ++$i) 
-            {
-                $oldSizesId = array_column($oldSizes, 'sizeid');
-                $found_key = array_search($sizes[$i]['id'], $oldSizesId);
-
-                if($found_key === false)
-                {
+                for ($i=0; $i < count($sizes); ++$i) 
+                { 
                     $sql = "INSERT INTO productidsizeid (id, productid, sizeid) VALUES (:id, :product_id, :size_id);";
                     $sth = $this->model->getDB()->prepare($sql);
                     $created = $sth->execute([ 
                         ':id' => NULL,
-                        ':product_id' => $id,
+                        ':product_id' => $product_id,
                         ':size_id' => $sizes[$i]['id'],    
                     ]);
                 }
             }
-            for ($i=0; $i < count($oldSizes); ++$i)
-            { 
-                $newSizesId = array_column($sizes, 'id');
-                $found_key = array_search($oldSizes[$i]['sizeid'], $newSizesId);
-                if($found_key === false)
+            else
+            {
+                
+                $sql = "UPDATE products set title = :title, new_product = :new_product, color_id = :color_id, brand_id = :brand_id, price = :price, price_with_discount = :price_with_discount, material_id = :material_id, country_product_id = :country_product_id, part_number = :part_number, category_id = :category_id, category_sub_id = :category_sub_id, category_sub_sub_id = :category_sub_sub_id, pictures_path = :pictures_path WHERE id = :id;";
+                $sth = $this->model->getDB()->prepare($sql);
+                error_log("NEW FILE NAME" . $filename);
+                $created = $sth->execute([ 
+                    ':id' => $id,
+                    ':title' => $title,
+                    ':color_id' => $color_id,
+                    ':brand_id' => $brand_id,
+                    ':price' => $price,
+                    ':price_with_discount' => $price_with_discount == "null" ? NULL : $price_with_discount,
+                    ':material_id' => $material_id,
+                    ':country_product_id' => $country_product_id,
+                    ':part_number' => $part_number,
+                    ':category_id' => $category_id,
+                    ':category_sub_id' => $categorysub_id,
+                    ':category_sub_sub_id' => $categorysubsub_id,
+                    ':pictures_path' => $filename, 
+                    ':new_product' => $new_product,
+                ]);
+
+                $sizes_json = $_POST['sizes'];
+                $sizes = [];
+                for ($i=0; $i < count($sizes_json); $i++) { 
+                    $sizes[$i] = json_decode($sizes_json[$i], true);
+                }
+
+                $sql = "SELECT * FROM productidsizeid WHERE productid = :product_id;";
+                $sth = $this->model->getDB()->prepare($sql);
+                $created = $sth->execute([ 
+                    ':product_id' => $id,
+                ]);
+                $oldSizes = $sth->fetchAll();
+
+                for ($i=0; $i < count($sizes); ++$i) 
                 {
-                    $sql = "DELETE FROM productidsizeid WHERE id = :id;";
-                    $sth = $this->model->getDB()->prepare($sql);
-                    $created = $sth->execute([ 
-                        ':id' => $oldSizes[$i]['id'],
-                    ]);
+                    $oldSizesId = array_column($oldSizes, 'sizeid');
+                    $found_key = array_search($sizes[$i]['id'], $oldSizesId);
+
+                    if($found_key === false)
+                    {
+                        $sql = "INSERT INTO productidsizeid (id, productid, sizeid) VALUES (:id, :product_id, :size_id);";
+                        $sth = $this->model->getDB()->prepare($sql);
+                        $created = $sth->execute([ 
+                            ':id' => NULL,
+                            ':product_id' => $id,
+                            ':size_id' => $sizes[$i]['id'],    
+                        ]);
+                    }
+                }
+                for ($i=0; $i < count($oldSizes); ++$i)
+                { 
+                    $newSizesId = array_column($sizes, 'id');
+                    $found_key = array_search($oldSizes[$i]['sizeid'], $newSizesId);
+                    if($found_key === false)
+                    {
+                        $sql = "DELETE FROM productidsizeid WHERE id = :id;";
+                        $sth = $this->model->getDB()->prepare($sql);
+                        $created = $sth->execute([ 
+                            ':id' => $oldSizes[$i]['id'],
+                        ]);
+                    }
                 }
             }
+        }
+        catch(Exception $e)
+        {
+            print_r(json_encode(["error" => "Помилка сервера: " . $e->getMessage()]));
         }
         print_r(json_encode(["message" => "Ok"]));
     }
