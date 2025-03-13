@@ -70,8 +70,9 @@ class ProductsController
             $oldImgPath = $_POST['oldImgPath'];
             $price_with_discount = $_POST['price_with_discount'];
             $new_product = $_POST['new_product'];
-            $new_product == 'true' ? $new_product = true : $new_product = false;
-        
+            // error_log($new_product);
+            // $new_product == 'true' ? $new_product = 1 : $new_product = 0;
+            // error_log($new_product);
             if(isset($_FILES['file']))
             {
                 $file = $_FILES['file'];
@@ -138,7 +139,6 @@ class ProductsController
             {
                 $sql = "INSERT INTO products (id, title, color_id, brand_id, price, price_with_discount, material_id, country_product_id, part_number, category_id, category_sub_id, category_sub_sub_id, pictures_path, new_product, is_hidden) VALUES (:id, :title, :color_id, :brand_id, :price, :price_with_discount, :material_id, :country_product_id, :part_number, :category_id, :category_sub_id, :category_sub_sub_id, :pictures_path, :new_product, 0);";
                 $sth = $this->model->getDB()->prepare($sql);
-        
                 $created = $sth->execute([ 
                     ':id' => NULL,
                     ':title' => $title,
@@ -153,7 +153,7 @@ class ProductsController
                     ':category_sub_id' => $categorysub_id,
                     ':category_sub_sub_id' => $categorysubsub_id,
                     ':pictures_path' => $filename, 
-                    ':new_product' => $new_product,
+                    ':new_product' => intval($new_product),
                 ]);
 
                 $product_id = $this->model->getDB()->lastInsertId();
@@ -195,7 +195,7 @@ class ProductsController
                     ':category_sub_id' => $categorysub_id,
                     ':category_sub_sub_id' => $categorysubsub_id,
                     ':pictures_path' => $filename, 
-                    ':new_product' => $new_product,
+                    ':new_product' => intval($new_product),
                 ]);
 
                 $sizes_json = $_POST['sizes'];
@@ -241,12 +241,12 @@ class ProductsController
                     }
                 }
             }
+            print_r(json_encode(["message" => "Ok"]));
         }
         catch(Exception $e)
         {
             print_r(json_encode(["error" => "Помилка сервера: " . $e->getMessage()]));
         }
-        print_r(json_encode(["message" => "Ok"]));
     }
 
     public function deleteImgFromGoogleBucket()
