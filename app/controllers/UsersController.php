@@ -84,11 +84,9 @@ class UsersController
             exit();
         }
 
-
         $first_name = trim($data['first_name']);
         $email = trim($data['email']);
         $password = trim($data['password']);
-
 
         $stmt = $this->model->getDB()->prepare("SELECT * FROM users WHERE email = :email");
         $stmt->execute([':email' => $email]);

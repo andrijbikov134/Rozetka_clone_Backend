@@ -50,6 +50,7 @@ class ProductsController
     
     public function addOrUpdateProductInDB()
     {
+
         require dirname(__DIR__,2) . '/vendor/autoload.php'; // Підключити автозавантажувач Composer для відправки картинки на Google Cloud
     
         $input = json_decode(file_get_contents("php://input"), true);
@@ -76,45 +77,53 @@ class ProductsController
        
         if(isset($_FILES['file']))
         {
-            $file = $_FILES['file'];
-            // Настройте переменные
-            $projectId = 'arctic-marking-450608-f8'; // Ваш Project ID
-            $bucketName = 'clothes_store'; // Название вашего бакета
-    
-            // Путь к вашему файлу с учетными данными JSON
-            $path_env = dirname(__DIR__,2) . '/arctic-marking-450608-f8-6f543f6e3329.json';
-            putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $path_env);
-    
-            // Создаём объект StorageClient
-            $storage = new StorageClient([
-                'projectId' => $projectId,
-            ]);
-    
-            // Получаем объект бакета
-            $bucket = $storage->bucket($bucketName);
-    
-            $objectName = $file['name']; 
-            $fileNames = explode(".", $objectName);
-    
-            // Указываем путь к файлу, который хотите загрузить
-            $filePath = $file['tmp_name'];
-    
-            $hashed_filename = floor(microtime(true) * 1000) . '.' . $fileNames[1];  // Имя объекта в DB
-            $filename = 'img/' . $category . "/" . $categorySub . '/' . $categorySubSub . '/' . $hashed_filename;  // Имя объекта в бакете
-            
-            // Загружаем файл в Google Cloud Storage
-            $bucket->upload(
-                fopen($filePath, 'r'),
-                [
-                    'name' => $filename, // Имя файла в облаке
-                ]
-            );
-            if($oldImgPath != '')
+            try
             {
-                // Видалити картинку
-                $object = $bucket->object($oldImgPath);
-                $object->delete();
+                $file = $_FILES['file'];
+                // Настройте переменные
+                $projectId = 'arctic-marking-450608-f8'; // Ваш Project ID
+                $bucketName = 'clothes_store'; // Название вашего бакета
+        
+                // Путь к вашему файлу с учетными данными JSON
+                $path_env = dirname(__DIR__,2) . '/arctic-marking-450608-f8-6f543f6e3329.json';
+                putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $path_env);
+        
+                // Создаём объект StorageClient
+                $storage = new StorageClient([
+                    'projectId' => $projectId,
+                ]);
+        
+                // Получаем объект бакета
+                $bucket = $storage->bucket($bucketName);
+        
+                $objectName = $file['name']; 
+                $fileNames = explode(".", $objectName);
+        
+                // Указываем путь к файлу, который хотите загрузить
+                $filePath = $file['tmp_name'];
+        
+                $hashed_filename = floor(microtime(true) * 1000) . '.' . $fileNames[1];  // Имя объекта в DB
+                $filename = 'img/' . $category . "/" . $categorySub . '/' . $categorySubSub . '/' . $hashed_filename;  // Имя объекта в бакете
+                
+                // Загружаем файл в Google Cloud Storage
+                $bucket->upload(
+                    fopen($filePath, 'r'),
+                    [
+                        'name' => $filename, // Имя файла в облаке
+                    ]
+                );
+                if($oldImgPath != '')
+                {
+                    // Видалити картинку
+                    $object = $bucket->object($oldImgPath);
+                    $object->delete();
+                }
             }
+            catch(Exception $e)
+            {
+                print_r(json_encode(["error" => "Помилка сервера: " . $e->getMessage()]));
+            }
+            
         }
         else
         {
@@ -245,7 +254,7 @@ class ProductsController
                 }
             }
         }
-        return 0;
+        print_r(json_encode(["message" => "Ok"]));
     }
 
     public function deleteImgFromGoogleBucket()
