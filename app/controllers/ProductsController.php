@@ -152,7 +152,7 @@ class ProductsController
                     ':category_id' => $category_id,
                     ':category_sub_id' => $categorysub_id,
                     ':category_sub_sub_id' => $categorysubsub_id,
-                    ':pictures_path' => $filename, 
+                    ':pictures_path' => $filename,
                     ':new_product' => intval($new_product),
                 ]);
 
