@@ -175,4 +175,25 @@ class OrderIdProductIdController
       }
       print_r(json_encode($response));
     }
+
+    public function getSalesByCategory()
+    {
+      header('Content-Type: application/json');
+
+      // Запрос к базе данных
+      $sql = "SELECT category.title_ua as title, SUM(orderidproductid.quantity * orderidproductid.price) as total_sum FROM orderidproductid JOIN products ON orderidproductid.product_id = products.id JOIN category ON products.category_id = category.id GROUP BY category.id ORDER BY total_sum DESC";
+
+      $sth = $this->model->getDB()->prepare($sql);
+      $sth->execute([    
+      ]);
+      $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+      $categorySales = ["labels" => [], "values" => []];
+      for ($i=0; $i < count($result) ; ++$i)
+      { 
+        $response['labels'][] = $result[$i]['title'];
+        $response['values'][] = intval($result[$i]['total_sum']);  
+      }
+      // Отправка JSON-данных в React
+      echo json_encode($response);
+    }
 }

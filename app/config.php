@@ -2,10 +2,9 @@
 
 return [
     'routes' => [
-        'getpopularproducts' => 'OrderIdProductIdController@getPopularProducts',     // index.php?action=index
+        'getpopularproducts' => 'OrderIdProductIdController@getPopularProducts',
         'getcategoriessubsubbycategorysubandcategory' => 'ProductsController@getCategoriesSubSubByCategorySubAndCategory', 
-          // index.php?action=delete&id=10
-        'getproductsfilteredbytitle' => 'ProductsController@getProductsFilteredByTitle',   // index.php?action=delete&id=10
+        'getproductsfilteredbytitle' => 'ProductsController@getProductsFilteredByTitle',
         'getproductbyid' => 'ProductsController@getProductById',
         'getproductswithoutfilters' => 'ProductsController@getProductsWithoutFilters',  
         'getproductswithfilters' => 'ProductsController@getProductsWithFilters',
@@ -21,9 +20,6 @@ return [
 
         'changeishidden' => 'ProductsController@changeIsHidden',
         'gethiddenproducts' => 'ProductsController@getHiddenProducts',
-
-        
-        // index.php?action=delete&id=10
         'createreview' => 'ReviewsController@putReviewDB',
         'getreviewsproductbyid' => 'ReviewsController@getReviewsProductById',
         
@@ -51,17 +47,15 @@ return [
 
         'getcategorytitlebyid' => 'CategoriesController@getCategoryTitleById' ,
 
-
         'getissaleproductsbyuser' => 'OrderIdProductIdController@getIsSaleProductsByUser' ,
         'gettopproductsquantity' => 'OrderIdProductIdController@getTopProductsQuantity',
         'getsalesbymonth' => 'OrderIdProductIdController@getSalesByMonth',
         'getsalesbybrand' => 'OrderIdProductIdController@getSalesByBrand',
+        'getsalesbycategory' => 'OrderIdProductIdController@getSalesByCategory',
 
         'getordersbyuserid' => 'OrdersController@getOrdersByUserId',
         'getorders' => 'OrdersController@getOrders',
         'updateorder' => 'OrdersController@updateOrder',
-
-        
 
         'getallbrands' => 'FiltersController@getAllBrands', 
         'getallsizes' => 'FiltersController@getAllSizes',

@@ -1,5 +1,4 @@
 <?php
-//use \Datetime;
 header('Content-Type: application/json'); 
 error_reporting(E_ALL ^ E_WARNING);
 class OrdersController
@@ -128,7 +127,6 @@ class OrdersController
         $input = json_decode(file_get_contents('php://input'), true);
         $order_id = $input['order_id'];
         $status_order = $input['status_order'];
-        error_log(print_r($input,true));
         $sql = "UPDATE orders set status_order = :status_order WHERE id = :order_id;";
         $sth = $this->model->getDB()->prepare($sql);
         $created = $sth->execute([ 
@@ -142,10 +140,10 @@ class OrdersController
     public function getOrdersByUserId()
     {
 
-      $input = json_decode(file_get_contents('php://input'), true);
-      $user_id = $input['user_id']; 
+        $input = json_decode(file_get_contents('php://input'), true);
+        $user_id = $input['user_id']; 
 
-      $sql = "SELECT o.id AS order_id, o.status_order as status_order, 
+        $sql = "SELECT o.id AS order_id, o.status_order as status_order, 
                 o.date_order, 
                 GROUP_CONCAT(
                     CONCAT(
@@ -164,19 +162,18 @@ class OrdersController
           GROUP BY o.id
           ORDER BY o.date_order DESC";
 
-      $sth = $this->model->getDB()->prepare($sql);
-      $sth->execute([":user_id" => $user_id]);
-      $orders = $sth->fetchAll(PDO::FETCH_ASSOC);
-
+        $sth = $this->model->getDB()->prepare($sql);
+        $sth->execute([":user_id" => $user_id]);
+        $orders = $sth->fetchAll(PDO::FETCH_ASSOC);
       
-  // Оновлюємо структуру, щоб products було масивом JSON
-      foreach ($orders as &$order) {
-          $order['products'] = "[" . $order['products'] . "]";
-      }
-      // Відправляємо як JSON
-      echo json_encode(["orders" => $orders]);
+        // Оновлюємо структуру, щоб products було масивом JSON
+        foreach ($orders as &$order)
+        {
+            $order['products'] = "[" . $order['products'] . "]";
+        }
+        // Відправляємо як JSON
+        echo json_encode(["orders" => $orders]);
     }
-
 
     public function getOrders()
     {
@@ -204,24 +201,24 @@ class OrdersController
         GROUP BY o.id
         ORDER BY o.date_order DESC";
 
-      $sth = $this->model->getDB()->prepare($sql);
-      $sth->execute([]);
-      $orders = $sth->fetchAll(PDO::FETCH_ASSOC);
-    
-      foreach ($orders as &$order) {
-        $order['products'] = "[" . $order['products'] . "]";
-    }
+        $sth = $this->model->getDB()->prepare($sql);
+        $sth->execute([]);
+        $orders = $sth->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($orders as &$order)
+        {
+            $order['products'] = "[" . $order['products'] . "]";
+        }
+        if (!$orders) 
+        {
+            error_log("getOrders: Замовлення не знайдено");
+            echo json_encode(["message" => "Замовлення не знайдено", "orders" => []]);
+            exit();
+        }
 
-      if (!$orders) 
-      {
-          error_log("getOrders: Замовлення не знайдено");
-          echo json_encode(["message" => "Замовлення не знайдено", "orders" => []]);
-          exit();
-      }
-
-      error_log("getOrders: SQL виконано, кількість результатів: " . count($orders));
-      echo json_encode(["orders" => $orders]);
-      exit();
+        error_log("getOrders: SQL виконано, кількість результатів: " . count($orders));
+        echo json_encode(["orders" => $orders]);
+        exit();
     } 
     catch (Exception $e) 
     {
