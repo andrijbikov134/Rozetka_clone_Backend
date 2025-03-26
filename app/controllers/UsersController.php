@@ -15,7 +15,7 @@ class UsersController
 
     public function getUsersByRole(string $role)
     {
-      $sql = "SELECT * FROM users WHERE role_id in (SELECT id FROM roles WHERE title = :role) AND first_name != 'root';";
+      $sql = "SELECT * FROM users WHERE role_id in (SELECT id FROM roles WHERE title = :role)";
       $sth = $this->model->getDB()->prepare($sql); 
       
       $sth->execute([ 
