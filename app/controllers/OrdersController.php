@@ -17,7 +17,7 @@ class OrdersController
       $input = json_decode(file_get_contents('php://input'), true);
       $payment_method = $input['payment_method'];
       // file_put_contents('D:/log.txt', print_r(intval($input['user']['id']),true), FILE_APPEND);
-
+      error_log(print_r($input,true));
       ////////////////////////////////////////////////////////////
       // Знайти id за назвою в таблиці deliverytype
       $sql = "SELECT id FROM deliverytype WHERE title = :title";
