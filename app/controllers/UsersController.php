@@ -19,7 +19,29 @@ class UsersController
       $sth = $this->model->getDB()->prepare($sql); 
       
       $sth->execute([ 
-          ':role' => $role  
+          ':role' => $role
+      ]);
+      $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+      print_r(json_encode($items)); 
+    }
+
+    public function getUsersAdmins()
+    {
+      $sql = "SELECT * FROM users WHERE role_id = 1";
+      $sth = $this->model->getDB()->prepare($sql); 
+      
+      $sth->execute([ 
+      ]);
+      $items = $sth->fetchAll(PDO::FETCH_ASSOC);
+      print_r(json_encode($items)); 
+    }
+
+    public function getUsersClients()
+    {
+      $sql = "SELECT * FROM users WHERE role_id = 2";
+      $sth = $this->model->getDB()->prepare($sql); 
+      
+      $sth->execute([ 
       ]);
       $items = $sth->fetchAll(PDO::FETCH_ASSOC);
       print_r(json_encode($items)); 
@@ -80,13 +102,14 @@ class UsersController
         }
 
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-        try {
+        try
+        {
             // 1 - id ролі Admin в базі даних  
             $stmt = $this->model->getDB()->prepare("INSERT INTO users (first_name, email, password, role_id, patronymic, gender,phone,birthday,city,last_name) VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$first_name, $email, $hashed_password, $patronymic, $gender, $phone, $birthday == "" ? NULL : $birthday, $city, 
             $last_name]);
 
-            echo json_encode(["message" => "Реєстрація успішна!"]);
+            echo json_encode(["message" => "Адміністратор додався успішно!"]);
         }
         catch (PDOException $e)
         {

@@ -40,6 +40,9 @@ return [
         'getusersbyrole' => 'UsersController@getUsersByRole',
         'setnewpassworduser' => 'UsersController@setNewPasswordUser',
         'addnewadministrator' => 'UsersController@addNewAdministrator',
+        'getusersadmins' => 'UsersController@getUsersAdmins',
+        'getusersclients' => 'UsersController@getUsersClients',
+
         
         'getcategoriessub' => 'CategoriesSubController@getCategoriesSub' ,
         'getcategorysubtitlebyid' => 'CategoriesSubController@getCategorySubTitleById' ,
