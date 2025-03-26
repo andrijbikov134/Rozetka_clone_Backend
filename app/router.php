@@ -102,6 +102,11 @@ if (isset($routes[$action]))
             $user_id = $_GET['user_id'];
             $controller->$method($product_id,$user_id);
         }
+        elseif ($action == 'getusersbyrole') 
+        {
+            $role = $_GET['role'];
+            $controller->$method($role);
+        }
         else
         {
             $controller->$method();

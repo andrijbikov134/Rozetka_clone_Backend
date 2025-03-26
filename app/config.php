@@ -37,6 +37,9 @@ return [
         'getuserbyid' => 'UsersController@getUserById',
         'updateprofile' => 'UsersController@updateProfile',
         'change-password' => 'UsersController@changePassword',
+        'getusersbyrole' => 'UsersController@getUsersByRole',
+        'setnewpassworduser' => 'UsersController@setNewPasswordUser',
+        'addnewadministrator' => 'UsersController@addNewAdministrator',
         
         'getcategoriessub' => 'CategoriesSubController@getCategoriesSub' ,
         'getcategorysubtitlebyid' => 'CategoriesSubController@getCategorySubTitleById' ,
