@@ -27,7 +27,7 @@ class UsersController
 
     public function getUsersAdmins()
     {
-      $sql = "SELECT * FROM users WHERE role_id = 1";
+      $sql = "SELECT * FROM users WHERE role_id = 1 AND first_name <> 'root'";
       $sth = $this->model->getDB()->prepare($sql); 
       
       $sth->execute([ 
