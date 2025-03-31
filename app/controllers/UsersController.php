@@ -33,7 +33,7 @@ class UsersController
       $sth->execute([ 
       ]);
       $items = $sth->fetchAll(PDO::FETCH_ASSOC);
-      print_r(json_encode($items)); 
+      print_r(json_encode($items));
     }
 
     public function getUsersClients()

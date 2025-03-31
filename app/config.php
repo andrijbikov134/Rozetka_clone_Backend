@@ -42,7 +42,6 @@ return [
         'addnewadministrator' => 'UsersController@addNewAdministrator',
         'getusersadmins' => 'UsersController@getUsersAdmins',
         'getusersclients' => 'UsersController@getUsersClients',
-
         
         'getcategoriessub' => 'CategoriesSubController@getCategoriesSub' ,
         'getcategorysubtitlebyid' => 'CategoriesSubController@getCategorySubTitleById' ,

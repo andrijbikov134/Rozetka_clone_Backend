@@ -209,13 +209,13 @@ class OrdersController
         {
             $order['products'] = "[" . $order['products'] . "]";
         }
+
         if (!$orders) 
         {
             error_log("getOrders: Замовлення не знайдено");
             echo json_encode(["message" => "Замовлення не знайдено", "orders" => []]);
             exit();
         }
-
         error_log("getOrders: SQL виконано, кількість результатів: " . count($orders));
         echo json_encode(["orders" => $orders]);
         exit();
